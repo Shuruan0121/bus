@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>버스타고 통학하자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f2f2f5;
+  --surface:  #ffffff;
+  --border:   #e4e4ec;
+  --ink:      #0e0e1a;
+  --ink2:     #3c3c56;
+  --ink3:     #8888aa;
+  --blue:     #2563eb;
+  --blue-bg:  #eff6ff;
+  --blue-bd:  #bfdbfe;
+  --green:    #16a34a;
+  --green-bg: #f0fdf4;
+  --green-bd: #bbf7d0;
+  --amber:    #d97706;
+  --amber-bg: #fffbeb;
+  --amber-bd: #fde68a;
+  --red:      #dc2626;
+  --red-bg:   #fef2f2;
+  --red-bd:   #fecaca;
+  --r:        14px;
+  --r-lg:     20px;
+  --sidebar:  360px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─── */
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar) 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas:
+    "topbar topbar"
+    "sidebar main";
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  grid-area: topbar;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; color: var(--ink); }
+.topbar-logo span { color: var(--blue); }
+.topbar-sub { font-size: 13px; color: var(--ink3); font-weight: 400; }
+.topbar-tabs { margin-left: auto; display: flex; gap: 4px; }
+.tab-btn {
+  padding: 6px 16px; border-radius: 8px; border: none;
+  background: none; font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--ink3); cursor: pointer; transition: all .15s;
+}
+.tab-btn:hover { background: var(--bg); color: var(--ink); }
+.tab-btn.active { background: var(--blue); color: #fff; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  height: calc(100vh - 56px);
+  position: sticky; top: 56px;
+  padding: 24px 20px 40px;
+}
+
+.s-section { margin-bottom: 28px; }
+.s-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+}
+.s-label {
+  font-size: 12px; font-weight: 600; color: var(--ink2);
+  margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
+}
+.s-val {
+  font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+  color: var(--blue); background: var(--blue-bg);
+  padding: 2px 8px; border-radius: 20px;
+}
+
+input[type=range] {
+  width: 100%; height: 3px; border-radius: 3px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--border); outline: none; cursor: pointer; margin-bottom: 12px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--blue);
+  box-shadow: 0 2px 6px rgba(37,99,235,.3); cursor: pointer;
+}
+
+input[type=text], input[type=time], textarea, select {
+  width: 100%; padding: 9px 12px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: inherit; font-size: 13px; color: var(--ink);
+  outline: none; transition: border-color .15s, background .15s; margin-bottom: 10px;
+}
+input[type=text]:focus, input[type=time]:focus, textarea:focus {
+  border-color: var(--blue); background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+}
+textarea {
+  resize: vertical; min-height: 80px;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  line-height: 1.8; margin-bottom: 0;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-label {
+  font-size: 11px; font-weight: 600; color: var(--ink3);
+  margin-bottom: 4px; letter-spacing: .3px;
+}
+
+/* bus block */
+.bus-block {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px; margin-bottom: 10px;
+}
+.bus-block-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.bus-tag {
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500;
+  background: var(--ink); color: #fff; padding: 3px 10px; border-radius: 20px;
+  min-width: 44px; text-align: center;
+}
+.btn-del {
+  margin-left: auto; padding: 4px 10px; border-radius: 8px;
+  border: 1px solid var(--red-bd); background: var(--red-bg); color: var(--red);
+  font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.btn-del:hover { background: #fee2e2; }
+.btn-add-bus {
+  width: 100%; padding: 9px; border-radius: var(--r);
+  border: 1.5px dashed var(--blue-bd); background: var(--blue-bg);
+  color: var(--blue); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; margin-top: 2px; transition: all .15s;
+}
+.btn-add-bus:hover { background: var(--blue-bd); }
+
+/* condition pills */
+.cond-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cond-pill {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 12px 8px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: all .18s; text-align: center;
+}
+.cond-pill:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
+.cond-pill.active { border-color: var(--blue); background: var(--blue-bg); }
+.cond-pill .ci { font-size: 22px; }
+.cond-pill .ct { font-size: 12px; font-weight: 700; color: var(--ink2); }
+.cond-pill.active .ct { color: var(--blue); }
+
+/* class buttons */
+.class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.class-btn {
+  padding: 10px 8px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; font-family: inherit; transition: all .15s; text-align: center;
+}
+.class-btn:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
+.class-btn.active { border-color: var(--blue); background: var(--blue-bg); }
+.class-btn .cb-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.class-btn.active .cb-label { color: var(--blue); }
+.class-btn .cb-time { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+/* generate button */
+.btn-generate {
+  width: 100%; padding: 14px; border: none; border-radius: var(--r);
+  background: var(--ink); color: #fff; font-family: inherit;
+  font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: -.3px;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 4px 16px rgba(14,14,26,.2);
+}
+.btn-generate:hover { background: #1a1a2e; transform: translateY(-1px); }
+.btn-generate:active { transform: translateY(0); }
+
+/* divider */
+.s-divider {
+  height: 1px; background: var(--border); margin: 0 0 20px;
+}
+
+/* ─── MAIN PANEL ─── */
+.main {
+  grid-area: main;
+  padding: 32px 36px 60px;
+  overflow-y: auto;
+}
+
+/* empty state */
+.empty-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 70vh; text-align: center;
+  gap: 14px;
+}
+.empty-wrap .em-icon { font-size: 56px; }
+.empty-wrap h2 { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
+.empty-wrap p { font-size: 14px; color: var(--ink3); line-height: 1.8; }
+
+/* result layout */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.result-grid .full { grid-column: 1 / -1; }
+
+/* ── HERO CARD ── */
+.hero-card {
+  background: var(--ink); color: #fff; border-radius: var(--r-lg);
+  padding: 32px 36px; position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.hero-card::after {
+  content: ''; position: absolute; bottom: -40px; right: 60px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255,255,255,.03);
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 10px;
+}
+.hero-time {
+  font-size: 80px; font-weight: 900; letter-spacing: -5px;
+  line-height: .95; font-family: 'DM Mono', monospace; margin-bottom: 12px;
+}
+.hero-desc { font-size: 15px; color: rgba(255,255,255,.6); line-height: 1.6; }
+.hero-desc strong { color: rgba(255,255,255,.9); font-weight: 700; }
+.hero-badge {
+  display: inline-block; margin-top: 18px; padding: 6px 16px;
+  border-radius: 20px; background: rgba(255,255,255,.1);
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+/* ── WAKE CARD ── */
+.wake-card {
+  background: var(--blue-bg); border: 1.5px solid var(--blue-bd);
+  border-radius: var(--r-lg); padding: 26px 28px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.wc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); opacity: .7; margin-bottom: 8px; }
+.wc-time { font-size: 64px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -4px; color: var(--blue); line-height: 1; margin-bottom: 8px; }
+.wc-sub { font-size: 13px; color: var(--blue); opacity: .7; font-weight: 500; }
+
+/* ── BUS CARD ── */
+.bus-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 24px 26px;
+}
+.bc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; }
+.bc-main { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.bc-number {
+  font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace;
+  letter-spacing: -3px; color: var(--ink); line-height: 1;
+}
+.bc-num-unit { font-size: 18px; font-weight: 500; color: var(--ink3); }
+.bc-depart { margin-left: auto; text-align: right; }
+.bc-dep-time {
+  font-size: 38px; font-weight: 900; font-family: 'DM Mono', monospace;
+  letter-spacing: -2px; color: var(--ink); line-height: 1;
+}
+.bc-dep-label { font-size: 12px; color: var(--ink3); margin-top: 4px; }
+.bc-route {
+  display: flex; align-items: center; gap: 10px;
+  padding-top: 14px; border-top: 1px solid var(--border);
+  font-size: 13px; color: var(--ink2);
+}
+.bc-route .stop { font-weight: 600; }
+.bc-route .arr { color: var(--ink3); font-size: 12px; }
+.bc-dur {
+  margin-left: auto; font-family: 'DM Mono', monospace;
+  font-size: 12px; color: var(--ink3);
+  background: var(--bg); padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── TRANSFER CARD ── */
+.transfer-card {
+  border-radius: var(--r-lg); padding: 24px 26px; border: 2px solid;
+}
+.transfer-card.tight { background: var(--amber-bg); border-color: var(--amber-bd); }
+.transfer-card.ok    { background: var(--green-bg);  border-color: var(--green-bd); }
+.tc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.tc-icon { font-size: 28px; }
+.tc-title { font-size: 17px; font-weight: 800; letter-spacing: -.5px; }
+.transfer-card.tight .tc-title { color: var(--amber); }
+.transfer-card.ok    .tc-title { color: var(--green); }
+.tc-body { font-size: 14px; color: var(--ink2); line-height: 1.8; }
+.tc-body strong { color: var(--ink); font-weight: 700; }
+.tc-mins {
+  display: inline-block; padding: 2px 10px; border-radius: 20px;
+  font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700;
+}
+.transfer-card.tight .tc-mins { background: var(--amber-bd); color: #92400e; }
+.transfer-card.ok    .tc-mins { background: var(--green-bd);  color: #14532d; }
+
+/* ── FREE TIME CARD ── */
+.free-card {
+  border-radius: var(--r-lg); padding: 24px 26px; border: 1.5px solid;
+}
+.free-card.plenty { background: var(--green-bg); border-color: var(--green-bd); }
+.free-card.some   { background: var(--blue-bg);  border-color: var(--blue-bd); }
+.free-card.snug   { background: var(--amber-bg); border-color: var(--amber-bd); }
+.free-card.danger { background: var(--red-bg);   border-color: var(--red-bd); }
+.fc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 10px; }
+.fc-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.fc-num { font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -3px; line-height: 1; }
+.free-card.plenty .fc-num { color: var(--green); }
+.free-card.some   .fc-num { color: var(--blue); }
+.free-card.snug   .fc-num { color: var(--amber); }
+.free-card.danger .fc-num { color: var(--red); }
+.fc-unit { font-size: 18px; font-weight: 700; color: var(--ink3); }
+.fc-msg  { font-size: 14px; font-weight: 600; margin-top: 6px; }
+.free-card.plenty .fc-msg { color: var(--green); }
+.free-card.some   .fc-msg { color: var(--blue); }
+.free-card.snug   .fc-msg { color: var(--amber); }
+.free-card.danger .fc-msg { color: var(--red); }
+.fc-detail { font-size: 12px; color: var(--ink3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+/* ── AI FEEDBACK ── */
+.ai-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 24px 26px;
+}
+.ai-card .bc-eye { margin-bottom: 16px; }
+.af-list { display: flex; flex-direction: column; gap: 0; }
+.af-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.af-item:last-child { border-bottom: none; padding-bottom: 0; }
+.af-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.af-text { font-size: 14px; color: var(--ink2); line-height: 1.65; font-weight: 500; }
+
+/* ── DETAIL TOGGLE ── */
+.detail-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+}
+.detail-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 18px 24px; border: none; background: none;
+  cursor: pointer; font-family: inherit; font-size: 13px;
+  font-weight: 700; color: var(--ink3); letter-spacing: -.2px;
+  transition: color .15s;
+}
+.detail-toggle:hover { color: var(--ink); }
+.detail-toggle .arrow { transition: transform .2s; font-size: 11px; }
+.detail-toggle.open .arrow { transform: rotate(180deg); }
+.detail-body { display: none; padding: 0 24px 20px; }
+.detail-body.open { display: block; }
+
+.mini-tl { list-style: none; }
+.mini-tl li {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.mini-tl li:last-child { border-bottom: none; }
+.mtl-time { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--ink); min-width: 44px; }
+.mtl-icon { font-size: 15px; flex-shrink: 0; }
+.mtl-text { color: var(--ink2); line-height: 1.5; }
+.mtl-text strong { color: var(--ink); font-weight: 700; }
+
+/* ── RESULT SECTION LABELS ── */
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--ink3); margin-bottom: 12px;
+  margin-top: 28px;
+}
+.section-label:first-child { margin-top: 0; }
+
+/* scrollbar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* animations */
+.result-grid > * {
+  animation: fadeUp .3s cubic-bezier(.22,1,.36,1) both;
+}
+.result-grid > *:nth-child(1) { animation-delay: .00s; }
+.result-grid > *:nth-child(2) { animation-delay: .05s; }
+.result-grid > *:nth-child(3) { animation-delay: .10s; }
+.result-grid > *:nth-child(4) { animation-delay: .15s; }
+.result-grid > *:nth-child(5) { animation-delay: .20s; }
+.result-grid > *:nth-child(6) { animation-delay: .25s; }
+.result-grid > *:nth-child(7) { animation-delay: .30s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ══ TOPBAR ══ -->
+  <header class="topbar">
+    <div class="topbar-logo">🚌 버스타고 <span>통학하자</span></div>
+    <div class="topbar-sub">AI 통학 루틴 어시스턴트</div>
+    <nav class="topbar-tabs">
+      <button class="tab-btn active" onclick="switchTab('setup')">설정</button>
+      <button class="tab-btn" onclick="switchTab('route')">노선 편집</button>
+    </nav>
+  </header>
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+
+    <!-- 설정 탭 -->
+    <div id="tab-setup">
+
+      <div class="s-section">
+        <div class="s-title">📚 오늘 첫 수업</div>
+        <div class="class-grid" id="class-grid"></div>
+        <div id="custom-row" style="display:none;">
+          <div class="field-label">수업 시간 직접 입력</div>
+          <input type="time" id="custom-time" value="09:00">
+        </div>
+      </div>
+
+      <div class="s-divider"></div>
+
+      <div class="s-section">
+        <div class="s-title">🌤️ 오늘 컨디션</div>
+        <div class="cond-grid" id="cond-grid"></div>
+      </div>
+
+      <div class="s-divider"></div>
+
+      <div class="s-section">
+        <div class="s-title">⏱️ 나의 루틴</div>
+        <div class="s-label">☀️ 준비 시간<span class="s-val" id="v-prep">60분</span></div>
+        <input type="range" min="15" max="120" step="5" value="60" oninput="sv('prep',this.value,'분')">
+        <div class="s-label">🚶 정류장까지 걷는 시간<span class="s-val" id="v-walk">10분</span></div>
+        <input type="range" min="1" max="30" step="1" value="10" oninput="sv('walk',this.value,'분')">
+        <div class="s-label">⏳ 도착 여유 시간<span class="s-val" id="v-buffer">15분</span></div>
+        <input type="range" min="0" max="60" step="5" value="15" oninput="sv('buffer',this.value,'분')">
+      </div>
+
+      <button class="btn-generate" onclick="generate()">✨ 통학 루틴 생성하기</button>
+    </div>
+
+    <!-- 노선 탭 -->
+    <div id="tab-route" style="display:none;">
+
+      <div class="s-section">
+        <div class="s-title">1구간 — 집 → 환승 정류장</div>
+        <div class="two-col">
+          <div>
+            <div class="field-label">탑승 정류장</div>
+            <input type="text" id="seg1-board" value="중앙역 정류장">
+          </div>
+          <div>
+            <div class="field-label">하차 정류장</div>
+            <input type="text" id="seg1-exit" value="터미널 정류장">
+          </div>
+        </div>
+        <div class="field-label" style="margin-top:4px;">탑승 가능 버스</div>
+        <div id="seg1-buses"></div>
+        <button class="btn-add-bus" onclick="addBus(1)">+ 버스 추가</button>
+      </div>
+
+      <div class="s-divider"></div>
+
+      <div class="s-section">
+        <div class="s-title">↔ 환승 설정</div>
+        <div class="s-label">환승 이동 시간<span class="s-val" id="v-twalk">5분</span></div>
+        <input type="range" min="1" max="20" step="1" value="5" oninput="sv('twalk',this.value,'분')">
+        <div class="s-label">환승 최소 여유<span class="s-val" id="v-tbuf">5분</span></div>
+        <input type="range" min="0" max="15" step="1" value="5" oninput="sv('tbuf',this.value,'분')">
+      </div>
+
+      <div class="s-divider"></div>
+
+      <div class="s-section">
+        <div class="s-title">2구간 — 환승 → 학교</div>
+        <div class="two-col">
+          <div>
+            <div class="field-label">탑승 정류장</div>
+            <input type="text" id="seg2-board" value="터미널 정류장">
+          </div>
+          <div>
+            <div class="field-label">하차 정류장</div>
+            <input type="text" id="seg2-exit" value="대학교 정류장">
+          </div>
+        </div>
+        <div class="field-label" style="margin-top:4px;">탑승 가능 버스</div>
+        <div id="seg2-buses"></div>
+        <button class="btn-add-bus" onclick="addBus(2)">+ 버스 추가</button>
+      </div>
+
+      <button class="btn-generate" onclick="generate()">✨ 루틴 생성하기</button>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main" id="main-panel">
+    <div class="empty-wrap">
+      <div class="em-icon">🌅</div>
+      <h2>오늘의 통학 루틴을<br>생성해주세요</h2>
+      <p>왼쪽에서 수업과 컨디션을 선택하고<br>버튼을 누르면 최적 경로를 계산해드려요.</p>
+    </div>
+  </main>
+
+</div>
+
+<script>
+/* ══════════ STATE ══════════ */
+const S = {
+  prep:6 0, walk:10, buffer:15, twalk:5, tbuf:5,
+  classId:'1', customTime:'09:00', condition:'relax',
+  seg1:{ board:'중앙역 정류장', exit:'터미널 정류장', buses:[] },
+  seg2:{ board:'터미널 정류장', exit:'대학교 정류장', buses:[] },
+};
+
+const CLASSES = [
+  {id:'1', label:'1교시', time:'09:00'},
+  {id:'2', label:'2교시', time:'10:00'},
+  {id:'3', label:'3교시', time:'11:00'},
+  {id:'custom', label:'직접 입력', time:null},
+];
+const CONDITIONS = [
+  {id:'sleep',  icon:'😴', label:'잠 더 자기',    desc:'수면 +30분'},
+  {id:'relax',  icon:'☕', label:'여유롭게',       desc:'준비 여유'},
+  {id:'fast',   icon:'⚡', label:'빠르게',         desc:'최소 시간'},
+  {id:'strict', icon:'📚', label:'절대 지각 금지', desc:'여유 최대화'},
+];
+
+let busId = 1;
+const uid = () => busId++;
+
+/* ══════════ TABS ══════════ */
+function switchTab(tab) {
+  document.getElementById('tab-setup').style.display = tab==='setup' ? '' : 'none';
+  document.getElementById('tab-route').style.display = tab==='route' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&tab==='setup')||(i===1&&tab==='route'));
+  });
+}
+
+/* ══════════ SLIDERS ══════════ */
+function sv(key, val, unit) {
+  S[key] = parseFloat(val);
+  const el = document.getElementById('v-'+key);
+  if (el) el.textContent = val+unit;
+}
+
+/* ══════════ BUS MANAGEMENT ══════════ */
+function addBus(seg) {
+  S['seg'+seg].buses.push({id:uid(), number:'', duration:20, times:''});
+  renderBuses(seg);
+}
+function removeBus(seg, id) {
+  S['seg'+seg].buses = S['seg'+seg].buses.filter(b=>b.id!==id);
+  renderBuses(seg);
+}
+function updateBus(seg, id, key, val) {
+  const b = S['seg'+seg].buses.find(b=>b.id===id);
+  if (b) { b[key]=val; if(key==='number') renderBuses(seg); }
+}
+function renderBuses(seg) {
+  const wrap = document.getElementById('seg'+seg+'-buses');
+  wrap.innerHTML = '';
+  S['seg'+seg].buses.forEach(bus => {
+    const d = document.createElement('div');
+    d.className = 'bus-block';
+    d.innerHTML = `
+      <div class="bus-block-head">
+        <span class="bus-tag">${bus.number||'?번'}</span>
+        ${S['seg'+seg].buses.length>1?`<button class="btn-del" onclick="removeBus(${seg},${bus.id})">삭제</button>`:''}
+      </div>
+      <div class="two-col" style="margin-bottom:10px;">
+        <div>
+          <div class="field-label">버스 번호</div>
+          <input type="text" placeholder="102" value="${bus.number}"
+            oninput="updateBus(${seg},${bus.id},'number',this.value)" style="margin-bottom:0;">
+        </div>
+        <div>
+          <div class="field-label">소요 시간: <span id="dur-${bus.id}">${bus.duration}분</span></div>
+          <input type="range" min="5" max="120" step="1" value="${bus.duration}"
+            oninput="updateBus(${seg},${bus.id},'duration',+this.value);document.getElementById('dur-${bus.id}').textContent=this.value+'분'">
+        </div>
+      </div>
+      <div class="field-label">시간표 (한 줄에 하나씩)</div>
+      <textarea placeholder="07:10&#10;07:25&#10;07:40"
+        oninput="updateBus(${seg},${bus.id},'times',this.value)">${bus.times}</textarea>
+    `;
+    wrap.appendChild(d);
+  });
+}
+
+/* ══════════ CLASS / CONDITION UI ══════════ */
+function renderClasses() {
+  document.getElementById('class-grid').innerHTML = CLASSES.map(c=>`
+    <button class="class-btn ${S.classId===c.id?'active':''}" onclick="selClass('${c.id}')">
+      <div class="cb-label">${c.label}</div>
+      ${c.time?`<div class="cb-time">${c.time}</div>`:''}
+    </button>`).join('');
+  document.getElementById('custom-row').style.display = S.classId==='custom'?'':'none';
+}
+function selClass(id) { S.classId=id; renderClasses(); }
+
+function renderConds() {
+  document.getElementById('cond-grid').innerHTML = CONDITIONS.map(c=>`
+    <div class="cond-pill ${S.condition===c.id?'active':''}" onclick="selCond('${c.id}')">
+      <div class="ci">${c.icon}</div>
+      <div class="ct">${c.label}</div>
+    </div>`).join('');
+}
+function selCond(id) { S.condition=id; renderConds(); }
+
+/* ══════════ TIME HELPERS ══════════ */
+const pt = s => { const[h,m]=s.trim().split(':').map(Number); return h*60+m; };
+const ft = m => `${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+
+/* ══════════ COMPUTE ══════════ */
+function compute(classTime) {
+  let prep=S.prep, buffer=S.buffer, sleepExtra=0;
+  if(S.condition==='sleep')  { sleepExtra=30; }
+  if(S.condition==='relax')  { prep=Math.floor(prep*1.3); }
+  if(S.condition==='fast')   { prep=Math.floor(prep*.8); buffer=10; }
+  if(S.condition==='strict') { buffer=30; }
+
+  const classMin=pt(classTime), deadline=classMin-buffer;
+
+  let b2=null;
+  for(const bus of S.seg2.buses)
+    for(const t of bus.times.split('\n').map(s=>s.trim()).filter(Boolean)){
+      const dep=pt(t), arr=dep+Number(bus.duration);
+      if(arr<=deadline&&(!b2||dep>b2.dep)) b2={dep,arr,bus};
+    }
+  if(!b2) for(const bus of S.seg2.buses){
+    const ts=bus.times.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!ts.length) continue;
+    const dep=pt(ts[0]);
+    if(!b2||dep<b2.dep) b2={dep,arr:dep+Number(bus.duration),bus};
+  }
+  if(!b2) return null;
+
+  const needBy=b2.dep-S.tbuf-S.twalk;
+  let b1=null;
+  for(const bus of S.seg1.buses)
+    for(const t of bus.times.split('\n').map(s=>s.trim()).filter(Boolean)){
+      const dep=pt(t), arr=dep+Number(bus.duration);
+      if(arr<=needBy&&(!b1||dep>b1.dep)) b1={dep,arr,bus};
+    }
+  if(!b1) for(const bus of S.seg1.buses){
+    const ts=bus.times.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!ts.length) continue;
+    const dep=pt(ts[0]);
+    if(!b1||dep<b1.dep) b1={dep,arr:dep+Number(bus.duration),bus};
+  }
+  if(!b1) return null;
+
+  const leaveHome=b1.dep-S.walk;
+  const wakeUp=leaveHome-prep-sleepExtra;
+  const transferDone=b1.arr+S.twalk;
+  return {
+    wakeUp, readyTime:wakeUp+prep+sleepExtra, leaveHome,
+    b1dep:b1.dep, b1arr:b1.arr, b1bus:b1.bus,
+    transferDone, b2dep:b2.dep, b2arr:b2.arr, b2bus:b2.bus,
+    classMin, freeTime:classMin-b2.arr,
+    transferSlack:b2.dep-transferDone,
+    seg1board:S.seg1.board, seg1exit:S.seg1.exit,
+    seg2board:S.seg2.board, seg2exit:S.seg2.exit,
+  };
+}
+
+/* ══════════ GENERATE ══════════ */
+function generate() {
+  S.seg1.board=document.getElementById('seg1-board').value;
+  S.seg1.exit =document.getElementById('seg1-exit').value;
+  S.seg2.board=document.getElementById('seg2-board').value;
+  S.seg2.exit =document.getElementById('seg2-exit').value;
+  S.customTime=document.getElementById('custom-time').value;
+
+  const cls=CLASSES.find(c=>c.id===S.classId);
+  const ct=S.classId==='custom'?S.customTime:cls.time;
+  renderResult(compute(ct), ct);
+}
+
+/* ══════════ RENDER RESULT ══════════ */
+function renderResult(tl, classTime) {
+  const panel=document.getElementById('main-panel');
+  if(!tl){
+    panel.innerHTML=`<div class="empty-wrap">
+      <div class="em-icon">😅</div>
+      <h2>계산할 수 없어요</h2>
+      <p>노선 탭에서 버스 번호와 시간표를<br>입력한 뒤 다시 시도해주세요.</p>
+    </div>`; return;
+  }
+
+  const condLabel=CONDITIONS.find(c=>c.id===S.condition)?.label;
+  const freeTime=tl.freeTime;
+  let freeClass,freeMsg;
+  if(freeTime>=25){freeClass='plenty';freeMsg='여유롭게 도착해요. 커피 한 잔 마실 시간도 있겠네요 ☕';}
+  else if(freeTime>=12){freeClass='some';freeMsg='적당한 여유가 있어요. 오늘도 잘 맞췄어요 👍';}
+  else if(freeTime>=5){freeClass='snug';freeMsg='조금 빠듯해요. 오늘은 서두르세요 ⚡';}
+  else{freeClass='danger';freeMsg='위험 구간이에요! 최대한 빠르게 움직이세요 🚨';}
+
+  const ts=tl.transferSlack;
+  const tight=ts<=3;
+  const transferClass=tight?'tight':'ok';
+  const transferIcon=tight?'⚠️':'✅';
+  const transferTitle=tight?'환승 시간이 매우 빠듯해요!':'환승 여유 충분해요';
+  const transferDesc=tight
+    ? `<strong>${ft(tl.b1arr)}</strong>에 내려서 <strong>${S.twalk}분</strong> 이동하면 <strong>${ft(tl.b2dep)}</strong> 출발 버스까지 <span class="tc-mins">${ts}분</span> 남아요. <strong>내리자마자 뛰어야 해요!</strong>`
+    : `<strong>${ft(tl.b1arr)}</strong>에 내려서 <strong>${S.twalk}분</strong> 이동하면 <strong>${ft(tl.b2dep)}</strong> 출발 버스까지 <span class="tc-mins">${ts}분</span> 여유가 있어요.`;
+
+  const feedback=buildFeedback(tl);
+
+  panel.innerHTML=`<div class="result-grid">
+
+    <!-- 집 나가는 시간 HERO -->
+    <div class="hero-card full">
+      <div class="hero-eyebrow">지금 가장 중요한 것</div>
+      <div class="hero-time">${ft(tl.leaveHome)}</div>
+      <div class="hero-desc">이 시간에 <strong>집에서 나가야</strong> 해요 — ${tl.seg1board}까지 <strong>${S.walk}분</strong> 이동</div>
+      <div class="hero-badge">${condLabel} 모드</div>
+    </div>
+
+    <!-- 알람 시간 -->
+    <div class="wake-card">
+      <div class="wc-eye">⏰ 알람 시간</div>
+      <div class="wc-time">${ft(tl.wakeUp)}</div>
+      <div class="wc-sub">준비 완료 ${ft(tl.readyTime)}</div>
+    </div>
+
+    <!-- 여유 시간 -->
+    <div class="free-card ${freeClass}">
+      <div class="fc-eye">🏫 수업 전 여유</div>
+      <div class="fc-row">
+        <div class="fc-num">${freeTime}</div>
+        <div class="fc-unit">분</div>
+      </div>
+      <div class="fc-msg">${freeMsg}</div>
+      <div class="fc-detail">도착 ${ft(tl.b2arr)} → 수업 ${ft(tl.classMin)}</div>
+    </div>
+
+    <!-- 1구간 버스 -->
+    <div class="bus-card">
+      <div class="bc-eye">🚌 1구간 — 탈 버스</div>
+      <div class="bc-main">
+        <div class="bc-number">${tl.b1bus.number}<span class="bc-num-unit">번</span></div>
+        <div class="bc-depart">
+          <div class="bc-dep-time">${ft(tl.b1dep)}</div>
+          <div class="bc-dep-label">출발</div>
+        </div>
+      </div>
+      <div class="bc-route">
+        <span class="stop">🟢 ${tl.seg1board}</span>
+        <span class="arr">→</span>
+        <span class="stop">🔴 ${tl.seg1exit}</span>
+        <span class="bc-dur">${tl.b1bus.duration}분</span>
+      </div>
+    </div>
+
+    <!-- 환승 상태 -->
+    <div class="transfer-card ${transferClass}">
+      <div class="tc-header">
+        <div class="tc-icon">${transferIcon}</div>
+        <div class="tc-title">${transferTitle}</div>
+      </div>
+      <div class="tc-body">${transferDesc}</div>
+    </div>
+
+    <!-- 2구간 버스 -->
+    <div class="bus-card">
+      <div class="bc-eye">🚌 2구간 — 환승 버스</div>
+      <div class="bc-main">
+        <div class="bc-number">${tl.b2bus.number}<span class="bc-num-unit">번</span></div>
+        <div class="bc-depart">
+          <div class="bc-dep-time">${ft(tl.b2dep)}</div>
+          <div class="bc-dep-label">출발</div>
+        </div>
+      </div>
+      <div class="bc-route">
+        <span class="stop">🟢 ${tl.seg2board}</span>
+        <span class="arr">→</span>
+        <span class="stop">🔴 ${tl.seg2exit}</span>
+        <span class="bc-dur">${tl.b2bus.duration}분</span>
+      </div>
+    </div>
+
+    <!-- AI 피드백 -->
+    <div class="ai-card">
+      <div class="bc-eye">🤖 AI 한마디</div>
+      <div class="af-list">
+        ${feedback.map(f=>`
+          <div class="af-item">
+            <div class="af-icon">${f.icon}</div>
+            <div class="af-text">${f.text}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 전체 일정 (접기) -->
+    <div class="detail-card">
+      <button class="detail-toggle" id="dtoggle" onclick="toggleDetail()">
+        <span id="dtoggle-label">전체 일정 보기</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div class="detail-body" id="dbody">
+        <ul class="mini-tl">
+          <li><span class="mtl-time">${ft(tl.wakeUp)}</span><span class="mtl-icon">⏰</span><span class="mtl-text">기상</span></li>
+          <li><span class="mtl-time">${ft(tl.readyTime)}</span><span class="mtl-icon">☕</span><span class="mtl-text">준비 완료</span></li>
+          <li><span class="mtl-time">${ft(tl.leaveHome)}</span><span class="mtl-icon">🏠</span><span class="mtl-text"><strong>집 출발</strong> — ${tl.seg1board}까지 ${S.walk}분 이동</span></li>
+          <li><span class="mtl-time">${ft(tl.b1dep)}</span><span class="mtl-icon">🚌</span><span class="mtl-text"><strong>${tl.b1bus.number}번</strong> 탑승 @ ${tl.seg1board}</span></li>
+          <li><span class="mtl-time">${ft(tl.b1arr)}</span><span class="mtl-icon">📍</span><span class="mtl-text">${tl.seg1exit} 하차 — 환승 이동 시작</span></li>
+          <li><span class="mtl-time">${ft(tl.transferDone)}</span><span class="mtl-icon">🚶</span><span class="mtl-text">${tl.seg2board} 도착 (${S.twalk}분 이동)</span></li>
+          <li><span class="mtl-time">${ft(tl.b2dep)}</span><span class="mtl-icon">🚌</span><span class="mtl-text"><strong>${tl.b2bus.number}번</strong> 탑승 @ ${tl.seg2board}</span></li>
+          <li><span class="mtl-time">${ft(tl.b2arr)}</span><span class="mtl-icon">🎓</span><span class="mtl-text"><strong>학교 도착</strong> @ ${tl.seg2exit}</span></li>
+          <li><span class="mtl-time">${ft(tl.classMin)}</span><span class="mtl-icon">📚</span><span class="mtl-text">수업 시작</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+function toggleDetail() {
+  const btn=document.getElementById('dtoggle');
+  const body=document.getElementById('dbody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+  document.getElementById('dtoggle-label').textContent=btn.classList.contains('open')?'전체 일정 접기':'전체 일정 보기';
+}
+
+function buildFeedback(tl) {
+  const msgs=[];
+  if(tl.freeTime>=20) msgs.push({icon:'✨',text:'여유롭게 도착할 수 있겠네요. 오늘 하루도 파이팅!'});
+  else if(tl.freeTime>=10) msgs.push({icon:'👍',text:'적당한 여유 시간이 있어요. 안심하세요.'});
+  else msgs.push({icon:'⚠️',text:'시간이 빠듯해요. 오늘은 서두르세요!'});
+
+  if(S.condition==='sleep') msgs.push({icon:'💤',text:'수면 시간을 30분 더 확보했어요. 푹 주무세요!'});
+  if(tl.transferSlack<=3) msgs.push({icon:'🏃',text:`환승 여유가 ${tl.transferSlack}분밖에 없어요. 내리자마자 바로 뛰세요!`});
+  if(tl.freeTime>=15&&S.condition!=='strict') msgs.push({icon:'☕',text:'학교 도착 후 여유 시간이 있어요. 커피 한 잔 어때요?'});
+  msgs.push({icon:'🌅',text:`${ft(tl.wakeUp)}에 일어나면 딱 맞아요.`});
+  return msgs.slice(0,3);
+}
+
+/* ══════════ INIT ══════════ */
+(function(){
+  S.seg1.buses=[
+    {id:uid(),number:'102',duration:25,times:'07:10\n07:25\n07:40\n08:05\n08:25'},
+    {id:uid(),number:'201',duration:28,times:'07:05\n07:30\n07:50\n08:10'},
+  ];
+  S.seg2.buses=[
+    {id:uid(),number:'330',duration:32,times:'07:55\n08:00\n08:20\n08:45'},
+    {id:uid(),number:'401',duration:30,times:'08:02\n08:22\n08:42'},
+  ];
+  renderBuses(1); renderBuses(2);
+  renderClasses(); renderConds();
+})();
+</script>
+</body>
+</html>
