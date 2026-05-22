@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>버스타고 통학하자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f2f2f5;
+  --surface:  #ffffff;
+  --border:    #e4e4ec;
+  --ink:       #0e0e1a;
+  --ink2:      #3c3c56;
+  --ink3:      #8888aa;
+  --blue:      #2563eb;
+  --blue-bg:   #eff6ff;
+  --blue-bd:   #bfdbfe;
+  --green:     #16a34a;
+  --green-bg: #f0fdf4;
+  --green-bd: #bbf7d0;
+  --amber:     #d97706;
+  --amber-bg: #fffbeb;
+  --amber-bd: #fde68a;
+  --red:       #dc2626;
+  --red-bg:    #fef2f2;
+  --red-bd:    #fecaca;
+  --r:         14px;
+  --r-lg:      20px;
+  --sidebar:   360px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─── */
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar) 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas:
+    "topbar topbar"
+    "sidebar main";
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  grid-area: topbar;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; color: var(--ink); }
+.topbar-logo span { color: var(--blue); }
+.topbar-sub { font-size: 13px; color: var(--ink3); font-weight: 400; }
+.topbar-tabs { margin-left: auto; display: flex; gap: 4px; }
+.tab-btn {
+  padding: 6px 16px; border-radius: 8px; border: none;
+  background: none; font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--ink3); cursor: pointer; transition: all .15s;
+}
+.tab-btn:hover { background: var(--bg); color: var(--ink); }
+.tab-btn.active { background: var(--blue); color: #fff; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  height: calc(100vh - 56px);
+  position: sticky; top: 56px;
+  padding: 24px 20px 40px;
+}
+
+.s-section { margin-bottom: 28px; }
+.s-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+}
+.s-label {
+  font-size: 12px; font-weight: 600; color: var(--ink2);
+  margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
+}
+.s-val {
+  font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+  color: var(--blue); background: var(--blue-bg);
+  padding: 2px 8px; border-radius: 20px;
+}
+
+input[type=range] {
+  width: 100%; height: 3px; border-radius: 3px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--border); outline: none; cursor: pointer; margin-bottom: 12px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--blue);
+  box-shadow: 0 2px 6px rgba(37,99,235,.3); cursor: pointer;
+}
+
+input[type=text], input[type=time], textarea, select {
+  width: 100%; padding: 9px 12px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: inherit; font-size: 13px; color: var(--ink);
+  outline: none; transition: border-color .15s, background .15s; margin-bottom: 10px;
+}
+input[type=text]:focus, input[type=time]:focus, textarea:focus {
+  border-color: var(--blue); background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+}
+textarea {
+  resize: vertical; min-height: 80px;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  line-height: 1.8; margin-bottom: 0;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-label {
+  font-size: 11px; font-weight: 600; color: var(--ink3);
+  margin-bottom: 4px; letter-spacing: .3px;
+}
+
+/* bus block */
+.bus-block {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px; margin-bottom: 10px;
+}
+.bus-block-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.bus-tag {
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500;
+  background: var(--ink); color: #fff; padding: 3px 10px; border-radius: 20px;
+  min-width: 44px; text-align: center;
+}
+.btn-del {
+  margin-left: auto; padding: 4px 10px; border-radius: 8px;
+  border: 1px solid var(--red-bd); background: var(--red-bg); color: var(--red);
+  font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.btn-del:hover { background: #fee2e2; }
+.btn-add-bus {
+  width: 100%; padding: 9px; border-radius: var(--r);
+  border: 1.5px dashed var(--blue-bd); background: var(--blue-bg);
+  color: var(--blue); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; margin-top: 2px; transition: all .15s;
+}
+.btn-add-bus:hover { background: var(--blue-bd); }
+
+/* condition pills */
+.cond-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cond-pill {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 12px 8px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: all .18s; text-align: center;
+}
+.cond-pill:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
+.cond-pill.active { border-color: var(--blue); background: var(--blue-bg); }
+.cond-pill .ci { font-size: 22px; }
+.cond-pill .ct { font-size: 12px; font-weight: 700; color: var(--ink2); }
+.cond-pill.active .ct { color: var(--blue); }
+
+/* class buttons */
+.class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.class-btn {
+  padding: 10px 8px; border-radius: var(--r);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; font-family: inherit; transition: all .15s; text-align: center;
+}
+.class-btn:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
+.class-btn.active { border-color: var(--blue); background: var(--blue-bg); }
+.class-btn .cb-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.class-btn.active .cb-label { color: var(--blue); }
+.class-btn .cb-time { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+/* generate button */
+.btn-generate {
+  width: 100%; padding: 14px; border: none; border-radius: var(--r);
+  background: var(--ink); color: #fff; font-family: inherit;
+  font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: -.3px;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 4px 16px rgba(14,14,26,.2);
+}
+.btn-generate:hover { background: #1a1a2e; transform: translateY(-1px); }
+.btn-generate:active { transform: translateY(0); }
+
+.s-divider { height: 1px; background: var(--border); margin: 0 0 20px; }
+
+/* ─── MAIN PANEL ─── */
+.main { grid-area: main; padding: 32px 36px 60px; overflow-y: auto; }
+
+/* empty state */
+.empty-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 70vh; text-align: center; gap: 14px;
+}
+.empty-wrap .em-icon { font-size: 56px; }
+.empty-wrap h2 { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
+.empty-wrap p { font-size: 14px; color: var(--ink3); line-height: 1.8; }
+
+/* result layout */
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.result-grid .full { grid-column: 1 / -1; }
+
+/* ── HERO CARD ── */
+.hero-card {
+  background: var(--ink); color: #fff; border-radius: var(--r-lg);
+  padding: 32px 36px; position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.04);
+}
+.hero-card::after {
+  content: ''; position: absolute; bottom: -40px; right: 60px;
+  width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.03);
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 10px;
+}
+.hero-time {
+  font-size: 80px; font-weight: 900; letter-spacing: -5px;
+  line-height: .95; font-family: 'DM Mono', monospace; margin-bottom: 12px;
+}
+.hero-desc { font-size: 15px; color: rgba(255,255,255,.6); line-height: 1.6; }
+.hero-desc strong { color: rgba(255,255,255,.9); font-weight: 700; }
+.hero-badge {
+  display: inline-block; margin-top: 18px; padding: 6px 16px;
+  border-radius: 20px; background: rgba(255,255,255,.1);
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+/* ── WAKE CARD ── */
+.wake-card {
+  background: var(--blue-bg); border: 1.5px solid var(--blue-bd);
+  border-radius: var(--r-lg); padding: 26px 28px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.wc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); opacity: .7; margin-bottom: 8px; }
+.wc-time { font-size: 64px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -4px; color: var(--blue); line-height: 1; margin-bottom: 8px; }
+.wc-sub { font-size: 13px; color: var(--blue); opacity: .7; font-weight: 500; }
+
+/* ── BUS CARD ── */
+.bus-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 24px 26px;
+}
+.bc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; }
+.bc-main { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.bc-number {
+  font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace;
+  letter-spacing: -3px; color: var(--ink); line-height: 1;
+}
+.bc-num-unit { font-size: 18px; font-weight: 500; color: var(--ink3); }
+.bc-depart { margin-left: auto; text-align: right; }
+.bc-dep-time { font-size: 38px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -2px; color: var(--ink); line-height: 1; }
+.bc-dep-label { font-size: 12px; color: var(--ink3); margin-top: 4px; }
+.bc-route {
+  display: flex; align-items: center; gap: 10px;
+  padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--ink2);
+}
+.bc-route .stop { font-weight: 600; }
+.bc-route .arr { color: var(--ink3); font-size: 12px; }
+.bc-dur {
+  margin-left: auto; font-family: 'DM Mono', monospace;
+  font-size: 12px; color: var(--ink3); background: var(--bg); padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── TRANSFER CARD ── */
+.transfer-card { border-radius: var(--r-lg); padding: 24px 26px; border: 2px solid; }
+.transfer-card.tight { background: var(--amber-bg); border-color: var(--amber-bd); }
+.transfer-card.ok    { background: var(--green-bg);  border-color: var(--green-bd); }
+.tc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.tc-icon { font-size: 28px; }
+.tc-title { font-size: 17px; font-weight: 800; letter-spacing: -.5px; }
+.transfer-card.tight .tc-title { color: var(--amber); }
+.transfer-card.ok    .tc-title { color: var(--green); }
+.tc-body { font-size: 14px; color: var(--ink2); line-height: 1.8; }
+.tc-body strong { color: var(--ink); font-weight: 700; }
+.tc-mins {
+  display: inline-block; padding: 2px 10px; border-radius: 20px;
+  font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700;
+}
+.transfer-card.tight .tc-mins { background: var(--amber-bd); color: #92400e; }
+.transfer-card.ok    .tc-mins { background: var(--green-bd);  color: #14532d; }
+
+/* ── FREE TIME CARD ── */
+.free-card { border-radius: var(--r-lg); padding: 24px 26px; border: 1.5px solid; }
+.free-card.plenty { background: var(--green-bg); border-color: var(--green-bd); }
+.free-card.some   { background: var(--blue-bg);  border-color: var(--blue-bd); }
+.free-card.snug   { background: var(--amber-bg); border-color: var(--amber-bd); }
+.free-card.danger { background: var(--red-bg);   border-color: var(--red-bd); }
+.fc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 10px; }
+.fc-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.fc-num { font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -3px; line-height: 1; }
+.fc-unit { font-size: 18px; font-weight: 700; color: var(--ink3); }
+.fc-msg  { font-size: 14px; font-weight: 600; margin-top: 6px; }
+
+/* ── AI FEEDBACK ── */
+.ai-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px 26px; }
+.af-list { display: flex; flex-direction: column; gap: 0; }
+.af-item { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.af-item:last-child { border-bottom: none; }
+.af-icon { font-size: 20px; flex-shrink: 0; }
+.af-text { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+
+/* ── DETAIL TOGGLE ── */
+.detail-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-top: 16px; }
+.detail-toggle {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 24px;
+  border: none; background: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700;
+}
+.detail-toggle .arrow { transition: transform .2s; }
+.detail-toggle.open .arrow { transform: rotate(180deg); }
+.detail-body { display: none; padding: 0 24px 20px; }
+.detail-body.open { display: block; }
+.mini-tl { list-style: none; }
+.mini-tl li { display: flex; align-items: flex-start; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.mtl-time { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--ink); min-width: 45px; }
+
+/* Animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.result-grid > * { animation: fadeUp .3s ease-out both; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="topbar">
+    <div class="topbar-logo">🚌 버스타고 <span>통학하자</span></div>
+    <div class="topbar-sub">Step 02. 스타일 선택 (2/4)</div>
+    <nav class="topbar-tabs">
+      <button class="tab-btn active" onclick="switchTab('setup')">설정</button>
+      <button class="tab-btn" onclick="switchTab('route')">노선 편집</button>
+    </nav>
+  </header>
+
+  <aside class="sidebar">
+    <div id="tab-setup">
+      <div class="s-section">
+        <div class="s-title">📚 오늘 첫 수업</div>
+        <div class="class-grid" id="class-grid"></div>
+        <div id="custom-row" style="display:none;">
+          <input type="time" id="custom-time" value="09:00">
+        </div>
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-section">
+        <div class="s-title">🎨 등교 스타일 선택</div>
+        <div class="cond-grid" id="cond-grid"></div>
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-section">
+        <div class="s-title">⏱️ 나의 루틴</div>
+        <div class="s-label">준비 시간<span class="s-val" id="v-prep">60분</span></div>
+        <input type="range" min="15" max="120" step="5" value="60" oninput="sv('prep',this.value,'분')">
+        <div class="s-label">정류장 도보<span class="s-val" id="v-walk">10분</span></div>
+        <input type="range" min="1" max="30" step="1" value="10" oninput="sv('walk',this.value,'분')">
+      </div>
+      <button class="btn-generate" onclick="generate()">✨ 루틴 생성하기</button>
+    </div>
+
+    <div id="tab-route" style="display:none;">
+      <div class="s-section">
+        <div class="s-title">1구간 — 집 → 환승</div>
+        <input type="text" id="seg1-board" value="중앙역 정류장">
+        <input type="text" id="seg1-exit" value="터미널 정류장">
+        <div id="seg1-buses"></div>
+        <button class="btn-add-bus" onclick="addBus(1)">+ 버스 추가</button>
+      </div>
+      <div class="s-divider"></div>
+      <div class="s-section">
+        <div class="s-title">2구간 — 환승 → 학교</div>
+        <input type="text" id="seg2-board" value="터미널 정류장">
+        <input type="text" id="seg2-exit" value="대학교 정류장">
+        <div id="seg2-buses"></div>
+        <button class="btn-add-bus" onclick="addBus(2)">+ 버스 추가</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main-panel">
+    <div class="empty-wrap">
+      <div class="em-icon">🌅</div>
+      <h2>오늘의 스타일을 선택하고<br>루틴을 생성해주세요</h2>
+    </div>
+  </main>
+</div>
+
+<script>
+const S = {
+  prep: 60, walk: 10, buffer: 15, twalk: 5, tbuf: 5,
+  classId: '1', customTime: '09:00', condition: 'relax',
+  seg1: { board: '중앙역', exit: '터미널', buses: [] },
+  seg2: { board: '터미널', exit: '대학교', buses: [] }
+};
+
+const CLASSES = [
+  {id:'1', label:'1교시', time:'09:00'},
+  {id:'2', label:'2교시', time:'10:00'},
+  {id:'custom', label:'직접 입력', time:null}
+];
+
+const CONDITIONS = [
+  {id:'sleep',  icon:'😴', label:'잠 우선형',    desc:'늦게 일어나기'},
+  {id:'relax',  icon:'☕', label:'여유 추구형',    desc:'천천히 준비'},
+  {id:'fast',   icon:'⚡', label:'효율 중심형',    desc:'최단 시간'},
+  {id:'strict', icon:'📚', label:'안정 지향형',    desc:'무조건 정시'}
+];
+
+let busId = 1;
+const uid = () => busId++;
+
+function switchTab(tab) {
+  document.getElementById('tab-setup').style.display = tab==='setup' ? '' : 'none';
+  document.getElementById('tab-route').style.display = tab==='route' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='setup')||(i===1&&tab==='route')));
+}
+
+function sv(key, val, unit) { S[key] = parseFloat(val); document.getElementById('v-'+key).textContent = val+unit; }
+
+function addBus(seg) {
+  S['seg'+seg].buses.push({id:uid(), number:'', duration:20, times:''});
+  renderBuses(seg);
+}
+
+function renderBuses(seg) {
+  const wrap = document.getElementById('seg'+seg+'-buses');
+  wrap.innerHTML = S['seg'+seg].buses.map(bus => `
+    <div class="bus-block">
+      <input type="text" placeholder="버스번호" value="${bus.number}" oninput="updateBus(${seg},${bus.id},'number',this.value)">
+      <textarea placeholder="시간표 (예: 08:10)" oninput="updateBus(${seg},${bus.id},'times',this.value)">${bus.times}</textarea>
+    </div>
+  `).join('');
+}
+
+function updateBus(seg, id, key, val) { const b = S['seg'+seg].buses.find(b=>b.id===id); if(b) b[key]=val; }
+
+function renderClasses() {
+  document.getElementById('class-grid').innerHTML = CLASSES.map(c=>`<button class="class-btn ${S.classId===c.id?'active':''}" onclick="selClass('${c.id}')"><div class="cb-label">${c.label}</div></button>`).join('');
+}
+function selClass(id) { S.classId=id; document.getElementById('custom-row').style.display = id==='custom'?'':'none'; renderClasses(); }
+
+function renderConds() {
+  document.getElementById('cond-grid').innerHTML = CONDITIONS.map(c=>`<div class="cond-pill ${S.condition===c.id?'active':''}" onclick="selCond('${c.id}')"><div class="ci">${c.icon}</div><div class="ct">${c.label}</div></div>`).join('');
+}
+function selCond(id) { S.condition=id; renderConds(); }
+
+const pt = s => { const[h,m]=s.trim().split(':').map(Number); return h*60+m; };
+const ft = m => `${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+
+function generate() {
+  const ct = S.classId==='custom' ? document.getElementById('custom-time').value : CLASSES.find(c=>c.id===S.classId).time;
+  const result = compute(ct);
+  renderResult(result);
+}
+
+function compute(classTime) {
+  let prep=S.prep, buffer=S.buffer;
+  if(S.condition==='relax') prep += 15;
+  if(S.condition==='fast') { prep -= 10; buffer = 5; }
+
+  const classMin = pt(classTime);
+  const arrivalGoal = classMin - buffer;
+
+  // 2구간 버스 찾기
+  let bestB2 = null;
+  S.seg2.buses.forEach(bus => {
+    bus.times.split('\n').map(t=>t.trim()).filter(Boolean).forEach(t => {
+      const dep = pt(t), arr = dep + Number(bus.duration);
+      if(arr <= arrivalGoal && (!bestB2 || dep > bestB2.dep)) bestB2 = {dep, arr, bus};
+    });
+  });
+
+  if(!bestB2) return null;
+
+  // 1구간 버스 찾기 (환승시간 5분 가정)
+  let bestB1 = null;
+  const transferLimit = bestB2.dep - 5;
+  S.seg1.buses.forEach(bus => {
+    bus.times.split('\n').map(t=>t.trim()).filter(Boolean).forEach(t => {
+      const dep = pt(t), arr = dep + Number(bus.duration);
+      if(arr <= transferLimit && (!bestB1 || dep > bestB1.dep)) bestB1 = {dep, arr, bus};
+    });
+  });
+
+  if(!bestB1) return null;
+
+  const leaveHome = bestB1.dep - S.walk;
+  return {
+    wakeUp: leaveHome - prep,
+    leaveHome,
+    b1: bestB1,
+    b2: bestB2,
+    classMin,
+    arrival: bestB2.arr
+  };
+}
+
+function renderResult(tl) {
+  const panel = document.getElementById('main-panel');
+  if(!tl) { panel.innerHTML = '<div class="empty-wrap"><h2>노선 정보와 시간표를 입력해주세요!</h2></div>'; return; }
+
+  panel.innerHTML = `
+    <div class="result-grid">
+      <div class="hero-card full">
+        <div class="hero-eyebrow">집에서 나가야 하는 시간</div>
+        <div class="hero-time">${ft(tl.leaveHome)}</div>
+        <div class="hero-desc">${S.seg1.board}까지 ${S.walk}분 이동 포함</div>
+      </div>
+      <div class="wake-card">
+        <div class="wc-eye">⏰ 알람 시간</div>
+        <div class="wc-time">${ft(tl.wakeUp)}</div>
+      </div>
+      <div class="free-card plenty">
+        <div class="fc-eye">🏫 도착 여유</div>
+        <div class="fc-num">${tl.classMin - tl.arrival}분</div>
+        <div class="fc-msg">오늘도 지각 걱정 없어요!</div>
+      </div>
+      <div class="ai-card full">
+        <div class="bc-eye">🤖 AI 피드백</div>
+        <div class="af-list">
+          <div class="af-item">✅ ${ft(tl.b1.dep)}에 ${tl.b1.bus.number}번 버스를 타야 합니다.</div>
+          <div class="af-item">✅ ${ft(tl.b1.arr)} 하차 후 환승하여 ${ft(tl.b2.dep)}에 ${tl.b2.bus.number}번을 탑승하세요.</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-card">
+      <button class="detail-toggle" onclick="toggleDetail()">상세 일정 보기 <span class="arrow">▾</span></button>
+      <div class="detail-body" id="dbody">
+        <ul class="mini-tl">
+          <li><span class="mtl-time">${ft(tl.wakeUp)}</span> 기상 및 준비</li>
+          <li><span class="mtl-time">${ft(tl.leaveHome)}</span> 집 출발</li>
+          <li><span class="mtl-time">${ft(tl.b1.dep)}</span> ${tl.b1.bus.number}번 탑승</li>
+          <li><span class="mtl-time">${ft(tl.b2.dep)}</span> 환승 버스 탑승</li>
+          <li><span class="mtl-time">${ft(tl.arrival)}</span> 학교 도착</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function toggleDetail() {
+  document.getElementById('dbody').classList.toggle('open');
+  document.querySelector('.detail-toggle').classList.toggle('open');
+}
+
+renderClasses();
+renderConds();
+</script>
+</body>
+</html>
