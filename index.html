@@ -2,568 +2,836 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>버스타고 통학하자</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:        #f2f2f5;
-  --surface:  #ffffff;
-  --border:    #e4e4ec;
-  --ink:       #0e0e1a;
-  --ink2:      #3c3c56;
-  --ink3:      #8888aa;
-  --blue:      #2563eb;
-  --blue-bg:   #eff6ff;
-  --blue-bd:   #bfdbfe;
-  --green:     #16a34a;
-  --green-bg: #f0fdf4;
-  --green-bd: #bbf7d0;
-  --amber:     #d97706;
-  --amber-bg: #fffbeb;
-  --amber-bd: #fde68a;
-  --red:       #dc2626;
-  --red-bg:    #fef2f2;
-  --red-bd:    #fecaca;
-  --r:         14px;
-  --r-lg:      20px;
-  --sidebar:   360px;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
+  font-family: -apple-system, 'Noto Sans KR', sans-serif;
+  background: #fff;
+  color: #1d1d1f;
   min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ─── LAYOUT ─── */
-.shell {
-  display: grid;
-  grid-template-columns: var(--sidebar) 1fr;
-  grid-template-rows: 56px 1fr;
-  grid-template-areas:
-    "topbar topbar"
-    "sidebar main";
-  min-height: 100vh;
+/* ─── CSS VARS ─── */
+:root {
+  --white: #ffffff;
+  --bg: #f5f5f7;
+  --bg2: #fbfbfd;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+  --blue: #0071e3;
+  --blue-light: #e8f0fe;
+  --green: #34c759;
+  --green-light: #e8f8ed;
+  --amber: #ff9500;
+  --amber-light: #fff3e0;
+  --red: #ff3b30;
+  --red-light: #ffebea;
+  --r: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 30px rgba(0,0,0,0.09);
 }
 
-/* ─── TOPBAR ─── */
-.topbar {
-  grid-area: topbar;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 28px;
-  gap: 16px;
-  position: sticky; top: 0; z-index: 100;
+/* ─── INTRO SCREEN ─── */
+#intro {
+  position: fixed; inset: 0; z-index: 1000;
+  background: #fff;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+  overflow: hidden;
 }
-.topbar-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; color: var(--ink); }
-.topbar-logo span { color: var(--blue); }
-.topbar-sub { font-size: 13px; color: var(--ink3); font-weight: 400; }
-.topbar-tabs { margin-left: auto; display: flex; gap: 4px; }
-.tab-btn {
-  padding: 6px 16px; border-radius: 8px; border: none;
-  background: none; font-family: inherit; font-size: 13px; font-weight: 600;
-  color: var(--ink3); cursor: pointer; transition: all .15s;
+.intro-sky {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 38%;
+  background: linear-gradient(to top, #e8f4fd 0%, #f0f8ff 40%, transparent 100%);
 }
-.tab-btn:hover { background: var(--bg); color: var(--ink); }
-.tab-btn.active { background: var(--blue); color: #fff; }
+.road-wrap {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 56px;
+}
+.road {
+  width: 100%; height: 100%;
+  background: #e8e8ed;
+  border-top: 2px solid #d1d1d6;
+  position: relative; overflow: hidden;
+}
+.road-dashes {
+  position: absolute; top: 50%; left: -100%;
+  width: 300%; height: 3px;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0, transparent 28px,
+    #c7c7cc 28px, #c7c7cc 56px
+  );
+  transform: translateY(-50%);
+  animation: dashMove 1.2s linear infinite;
+}
+@keyframes dashMove { from { transform: translateX(0) translateY(-50%); } to { transform: translateX(calc(84px)) translateY(-50%); } }
 
-/* ─── SIDEBAR ─── */
-.sidebar {
-  grid-area: sidebar;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  height: calc(100vh - 56px);
-  position: sticky; top: 56px;
-  padding: 24px 20px 40px;
+.bus-container {
+  position: absolute; bottom: 56px; left: -160px;
+  animation: busRide 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes busRide {
+  0%   { left: -160px; }
+  55%  { left: calc(50% - 64px); }
+  70%  { left: calc(50% - 60px); }
+  85%  { left: calc(50% - 64px); }
+  100% { left: calc(50% - 64px); }
+}
+.bus-idle { animation: busIdle 1.8s ease-in-out infinite; animation-delay: 2.2s; }
+@keyframes busIdle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.wheel { animation: wheelSpin 0.25s linear infinite; transform-origin: center; }
+@keyframes wheelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.intro-content {
+  position: relative; z-index: 2;
+  text-align: center; margin-bottom: 140px;
+  animation: introFadeUp 0.8s ease-out 0.3s both;
+}
+@keyframes introFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.intro-logo { font-size: 13px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--text3); margin-bottom: 14px; }
+.intro-title { font-size: 38px; font-weight: 700; letter-spacing: -1.5px; line-height: 1.1; color: var(--text); }
+.intro-title span { color: var(--blue); }
+.intro-sub { font-size: 15px; color: var(--text2); margin-top: 10px; font-weight: 300; letter-spacing: -0.2px; }
+
+.intro-btn {
+  position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+  z-index: 10; padding: 15px 44px; border-radius: 100px; border: none;
+  background: var(--blue); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
+  cursor: pointer; letter-spacing: -0.3px; opacity: 0;
+  animation: btnAppear 0.5s ease-out 2.6s forwards; transition: transform 0.15s, background 0.15s;
+  box-shadow: 0 4px 20px rgba(0,113,227,0.3); white-space: nowrap;
+}
+.intro-btn:active { transform: translateX(-50%) scale(0.97); background: #0062c3; }
+@keyframes btnAppear { from { opacity: 0; } to { opacity: 1; } }
+#intro.exit { animation: introExit 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes introExit { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+
+/* ─── MAIN APP ─── */
+#app {
+  display: none; flex-direction: column; min-height: 100vh;
+  max-width: 430px; margin: 0 auto; background: var(--white);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+#app.visible { display: flex; }
+#app.show { opacity: 1; }
+
+/* ─── NAV BAR ─── */
+.navbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid var(--border); padding: 12px 20px 0;
+}
+.nav-top { display: flex; align-items: center; margin-bottom: 12px; }
+.nav-title { font-size: 17px; font-weight: 600; letter-spacing: -0.5px; color: var(--text); }
+.nav-mini-bus { margin-left: 8px; font-size: 17px; }
+.nav-tabs { display: flex; gap: 0; border-bottom: 1px solid transparent; }
+.nav-tab {
+  flex: 1; padding: 10px 0; border: none; background: none;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  color: var(--text3); cursor: pointer; position: relative; transition: color 0.2s;
+}
+.nav-tab.on { color: var(--blue); }
+.nav-tab.on::after {
+  content: ''; position: absolute; bottom: 0; left: 15%; right: 15%;
+  height: 2px; background: var(--blue); border-radius: 2px;
 }
 
-.s-section { margin-bottom: 28px; }
-.s-title {
-  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+/* ─── SCROLL AREA ─── */
+.scroll {
+  flex: 1; overflow-y: auto; overflow-x: hidden; padding: 24px 20px 48px; scrollbar-width: none;
 }
-.s-label {
-  font-size: 12px; font-weight: 600; color: var(--ink2);
-  margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
-}
-.s-val {
-  font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
-  color: var(--blue); background: var(--blue-bg);
-  padding: 2px 8px; border-radius: 20px;
-}
+.scroll::-webkit-scrollbar { display: none; }
 
-input[type=range] {
-  width: 100%; height: 3px; border-radius: 3px;
-  -webkit-appearance: none; appearance: none;
-  background: var(--border); outline: none; cursor: pointer; margin-bottom: 12px;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 16px; height: 16px;
-  border-radius: 50%; background: var(--blue);
-  box-shadow: 0 2px 6px rgba(37,99,235,.3); cursor: pointer;
-}
+.pane { display: none; }
+.pane.on { display: block; }
+.sec { margin-bottom: 28px; }
+.sec-label { font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
 
-input[type=text], input[type=time], textarea, select {
-  width: 100%; padding: 9px 12px; border-radius: var(--r);
-  border: 1.5px solid var(--border); background: var(--bg);
-  font-family: inherit; font-size: 13px; color: var(--ink);
-  outline: none; transition: border-color .15s, background .15s; margin-bottom: 10px;
+/* ─── CLASS BUTTONS ─── */
+.class-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.class-btn {
+  padding: 14px 6px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--bg); cursor: pointer; text-align: center; transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
 }
-input[type=text]:focus, input[type=time]:focus, textarea:focus {
-  border-color: var(--blue); background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
-}
-textarea {
-  resize: vertical; min-height: 80px;
-  font-family: 'DM Mono', monospace; font-size: 12px;
-  line-height: 1.8; margin-bottom: 0;
-}
+.class-btn:active { transform: scale(0.96); }
+.class-btn .cl { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+.class-btn .ct { font-size: 11px; color: var(--text3); margin-top: 2px; display: block; font-variant-numeric: tabular-nums; }
+.class-btn.on { background: var(--blue); border-color: var(--blue); }
+.class-btn.on .cl, .class-btn.on .ct { color: #fff; }
 
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.field-label {
-  font-size: 11px; font-weight: 600; color: var(--ink3);
-  margin-bottom: 4px; letter-spacing: .3px;
+input[type=time] {
+  width: 100%; padding: 13px 16px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: 17px; font-weight: 500;
+  outline: none; margin-top: 10px; transition: border-color 0.2s; color-scheme: light;
 }
+input[type=time]:focus { border-color: var(--blue); background: #fff; }
 
-/* bus block */
-.bus-block {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 12px 14px; margin-bottom: 10px;
-}
-.bus-block-head {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-}
-.bus-tag {
-  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500;
-  background: var(--ink); color: #fff; padding: 3px 10px; border-radius: 20px;
-  min-width: 44px; text-align: center;
-}
-.btn-del {
-  margin-left: auto; padding: 4px 10px; border-radius: 8px;
-  border: 1px solid var(--red-bd); background: var(--red-bg); color: var(--red);
-  font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
-}
-.btn-del:hover { background: #fee2e2; }
-.btn-add-bus {
-  width: 100%; padding: 9px; border-radius: var(--r);
-  border: 1.5px dashed var(--blue-bd); background: var(--blue-bg);
-  color: var(--blue); font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: inherit; margin-top: 2px; transition: all .15s;
-}
-.btn-add-bus:hover { background: var(--blue-bd); }
-
-/* condition pills */
+/* ─── STYLE PILLS ─── */
 .cond-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .cond-pill {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 12px 8px; border-radius: var(--r);
-  border: 1.5px solid var(--border); background: var(--bg);
-  cursor: pointer; transition: all .18s; text-align: center;
+  padding: 18px 14px; border-radius: var(--r-lg); border: 1px solid var(--border2);
+  background: var(--bg); cursor: pointer; transition: all 0.18s; -webkit-tap-highlight-color: transparent;
 }
-.cond-pill:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
-.cond-pill.active { border-color: var(--blue); background: var(--blue-bg); }
-.cond-pill .ci { font-size: 22px; }
-.cond-pill .ct { font-size: 12px; font-weight: 700; color: var(--ink2); }
-.cond-pill.active .ct { color: var(--blue); }
+.cond-pill:active { transform: scale(0.97); }
+.cond-pill .ci { font-size: 26px; margin-bottom: 8px; }
+.cond-pill .ct { font-size: 13px; font-weight: 600; color: var(--text); }
+.cond-pill .cd { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.cond-pill.on { background: #fff; border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+.cond-pill.on .ct { color: var(--blue); }
 
-/* class buttons */
-.class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-.class-btn {
-  padding: 10px 8px; border-radius: var(--r);
-  border: 1.5px solid var(--border); background: var(--bg);
-  cursor: pointer; font-family: inherit; transition: all .15s; text-align: center;
+/* ─── RANGE SLIDERS ─── */
+.range-row { margin-bottom: 18px; }
+.range-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.range-name { font-size: 15px; font-weight: 500; color: var(--text); }
+.range-val { font-size: 15px; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
+input[type=range] {
+  width: 100%; height: 4px; border-radius: 4px; -webkit-appearance: none; appearance: none;
+  background: var(--bg); outline: none; cursor: pointer;
 }
-.class-btn:hover { border-color: var(--blue-bd); background: var(--blue-bg); }
-.class-btn.active { border-color: var(--blue); background: var(--blue-bg); }
-.class-btn .cb-label { font-size: 13px; font-weight: 700; color: var(--ink); }
-.class-btn.active .cb-label { color: var(--blue); }
-.class-btn .cb-time { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; margin-top: 2px; }
-
-/* generate button */
-.btn-generate {
-  width: 100%; padding: 14px; border: none; border-radius: var(--r);
-  background: var(--ink); color: #fff; font-family: inherit;
-  font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: -.3px;
-  transition: background .15s, transform .1s;
-  box-shadow: 0 4px 16px rgba(14,14,26,.2);
+input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 4px;
+  background: linear-gradient(to right, var(--blue) 0%, var(--blue) var(--pct,50%), #e5e5ea var(--pct,50%));
 }
-.btn-generate:hover { background: #1a1a2e; transform: translateY(-1px); }
-.btn-generate:active { transform: translateY(0); }
-
-.s-divider { height: 1px; background: var(--border); margin: 0 0 20px; }
-
-/* ─── MAIN PANEL ─── */
-.main { grid-area: main; padding: 32px 36px 60px; overflow-y: auto; }
-
-/* empty state */
-.empty-wrap {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; height: 70vh; text-align: center; gap: 14px;
-}
-.empty-wrap .em-icon { font-size: 56px; }
-.empty-wrap h2 { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
-.empty-wrap p { font-size: 14px; color: var(--ink3); line-height: 1.8; }
-
-/* result layout */
-.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.result-grid .full { grid-column: 1 / -1; }
-
-/* ── HERO CARD ── */
-.hero-card {
-  background: var(--ink); color: #fff; border-radius: var(--r-lg);
-  padding: 32px 36px; position: relative; overflow: hidden;
-}
-.hero-card::before {
-  content: ''; position: absolute; top: -60px; right: -60px;
-  width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.04);
-}
-.hero-card::after {
-  content: ''; position: absolute; bottom: -40px; right: 60px;
-  width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.03);
-}
-.hero-eyebrow {
-  font-size: 11px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 10px;
-}
-.hero-time {
-  font-size: 80px; font-weight: 900; letter-spacing: -5px;
-  line-height: .95; font-family: 'DM Mono', monospace; margin-bottom: 12px;
-}
-.hero-desc { font-size: 15px; color: rgba(255,255,255,.6); line-height: 1.6; }
-.hero-desc strong { color: rgba(255,255,255,.9); font-weight: 700; }
-.hero-badge {
-  display: inline-block; margin-top: 18px; padding: 6px 16px;
-  border-radius: 20px; background: rgba(255,255,255,.1);
-  font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8);
-  border: 1px solid rgba(255,255,255,.12);
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; border: 0.5px solid rgba(0,0,0,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.18); margin-top: -9px; cursor: pointer;
 }
 
-/* ── WAKE CARD ── */
-.wake-card {
-  background: var(--blue-bg); border: 1.5px solid var(--blue-bd);
-  border-radius: var(--r-lg); padding: 26px 28px;
-  display: flex; flex-direction: column; justify-content: center;
+.btn-gen {
+  width: 100%; padding: 17px; border-radius: 100px; border: none; background: var(--blue); color: #fff;
+  font-family: inherit; font-size: 17px; font-weight: 600; cursor: pointer; letter-spacing: -0.3px;
+  transition: background 0.15s, transform 0.12s; box-shadow: 0 4px 20px rgba(0,113,227,0.28);
 }
-.wc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); opacity: .7; margin-bottom: 8px; }
-.wc-time { font-size: 64px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -4px; color: var(--blue); line-height: 1; margin-bottom: 8px; }
-.wc-sub { font-size: 13px; color: var(--blue); opacity: .7; font-weight: 500; }
+.btn-gen:active { transform: scale(0.98); background: #0062c3; }
 
-/* ── BUS CARD ── */
-.bus-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); padding: 24px 26px;
+/* ─── ROUTE DYNAMIC CARDS ─── */
+.segment-block {
+  background: #fff; border: 1px solid var(--border2); border-radius: var(--r-xl);
+  padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.03);
 }
-.bc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; }
-.bc-main { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-.bc-number {
-  font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace;
-  letter-spacing: -3px; color: var(--ink); line-height: 1;
+.segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.segment-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.btn-seg-del {
+  padding: 4px 10px; border-radius: 100px; border: none; background: var(--red-light);
+  color: var(--red); font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
-.bc-num-unit { font-size: 18px; font-weight: 500; color: var(--ink3); }
-.bc-depart { margin-left: auto; text-align: right; }
-.bc-dep-time { font-size: 38px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -2px; color: var(--ink); line-height: 1; }
-.bc-dep-label { font-size: 12px; color: var(--ink3); margin-top: 4px; }
-.bc-route {
-  display: flex; align-items: center; gap: 10px;
-  padding-top: 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--ink2);
+.route-card { background: var(--bg); border-radius: var(--r-lg); padding: 14px; margin-bottom: 12px; }
+input[type=text] {
+  width: 100%; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: #fff; color: var(--text); font-family: inherit; font-size: 15px; outline: none; margin-bottom: 8px;
 }
-.bc-route .stop { font-weight: 600; }
-.bc-route .arr { color: var(--ink3); font-size: 12px; }
-.bc-dur {
-  margin-left: auto; font-family: 'DM Mono', monospace;
-  font-size: 12px; color: var(--ink3); background: var(--bg); padding: 3px 10px; border-radius: 20px;
+input[type=text]:last-of-type { margin-bottom: 0; }
+input[type=text]:focus { border-color: var(--blue); }
+textarea {
+  width: 100%; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: #fff; color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px;
+  outline: none; resize: vertical; min-height: 80px; line-height: 1.8; margin-top: 6px;
 }
+textarea:focus { border-color: var(--blue); }
 
-/* ── TRANSFER CARD ── */
-.transfer-card { border-radius: var(--r-lg); padding: 24px 26px; border: 2px solid; }
-.transfer-card.tight { background: var(--amber-bg); border-color: var(--amber-bd); }
-.transfer-card.ok    { background: var(--green-bg);  border-color: var(--green-bd); }
-.tc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.tc-icon { font-size: 28px; }
-.tc-title { font-size: 17px; font-weight: 800; letter-spacing: -.5px; }
-.transfer-card.tight .tc-title { color: var(--amber); }
-.transfer-card.ok    .tc-title { color: var(--green); }
-.tc-body { font-size: 14px; color: var(--ink2); line-height: 1.8; }
-.tc-body strong { color: var(--ink); font-weight: 700; }
-.tc-mins {
-  display: inline-block; padding: 2px 10px; border-radius: 20px;
-  font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700;
+.bus-item { background: var(--bg2); border: 1px dashed var(--border2); border-radius: var(--r); padding: 12px; margin-bottom: 10px; }
+.bus-item-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.bus-item-row input[type=text] { margin-bottom: 0; flex: 1; }
+.btn-del { padding: 8px 12px; border-radius: 8px; border: none; background: rgba(255,59,48,0.08); color: var(--red); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-add {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 11px; border-radius: var(--r); border: 1.5px dashed rgba(0,113,227,0.25);
+  background: transparent; color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 4px;
 }
-.transfer-card.tight .tc-mins { background: var(--amber-bd); color: #92400e; }
-.transfer-card.ok    .tc-mins { background: var(--green-bd);  color: #14532d; }
-
-/* ── FREE TIME CARD ── */
-.free-card { border-radius: var(--r-lg); padding: 24px 26px; border: 1.5px solid; }
-.free-card.plenty { background: var(--green-bg); border-color: var(--green-bd); }
-.free-card.some   { background: var(--blue-bg);  border-color: var(--blue-bd); }
-.free-card.snug   { background: var(--amber-bg); border-color: var(--amber-bd); }
-.free-card.danger { background: var(--red-bg);   border-color: var(--red-bd); }
-.fc-eye { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink3); margin-bottom: 10px; }
-.fc-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
-.fc-num { font-size: 52px; font-weight: 900; font-family: 'DM Mono', monospace; letter-spacing: -3px; line-height: 1; }
-.fc-unit { font-size: 18px; font-weight: 700; color: var(--ink3); }
-.fc-msg  { font-size: 14px; font-weight: 600; margin-top: 6px; }
-
-/* ── AI FEEDBACK ── */
-.ai-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px 26px; }
-.af-list { display: flex; flex-direction: column; gap: 0; }
-.af-item { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.af-item:last-child { border-bottom: none; }
-.af-icon { font-size: 20px; flex-shrink: 0; }
-.af-text { font-size: 14px; color: var(--ink2); line-height: 1.6; }
-
-/* ── DETAIL TOGGLE ── */
-.detail-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-top: 16px; }
-.detail-toggle {
-  display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 24px;
-  border: none; background: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700;
+.btn-add-segment {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 16px; border-radius: var(--r-lg); border: 2px dashed var(--blue);
+  background: var(--blue-light); color: var(--blue); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px;
+  box-shadow: 0 4px 14px rgba(0,113,227,0.1); transition: transform 0.1s;
 }
-.detail-toggle .arrow { transition: transform .2s; }
-.detail-toggle.open .arrow { transform: rotate(180deg); }
-.detail-body { display: none; padding: 0 24px 20px; }
-.detail-body.open { display: block; }
-.mini-tl { list-style: none; }
-.mini-tl li { display: flex; align-items: flex-start; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-.mtl-time { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--ink); min-width: 45px; }
+.btn-add-segment:active { transform: scale(0.99); }
 
-/* Animations */
+/* ─── TIMETABLE VIEW ─── */
+.tt-card { background: #fff; border: 1px solid var(--border2); border-radius: var(--r-xl); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.tt-seg-title { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.tt-station { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.tt-bus-box { background: var(--bg); border-radius: var(--r); padding: 12px; margin-bottom: 8px; }
+.tt-bus-box:last-child { margin-bottom: 0; }
+.tt-bus-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.tt-bus-name { font-size: 16px; font-weight: 700; color: var(--text); }
+.tt-bus-dur { font-size: 12px; color: var(--text2); }
+.tt-times-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.tt-time-tag { background: #fff; border: 0.5px solid var(--border2); border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--text); }
+
+/* ─── RESULT CARDS ─── */
+#result-area { margin-top: 24px; }
+.r-hero { background: var(--text); border-radius: var(--r-xl); padding: 28px 26px; margin-bottom: 14px; position: relative; overflow: hidden; }
+.r-hero-sky { position: absolute; inset: 0; z-index: 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+.r-hero-sky::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 80% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 55%, rgba(255,255,255,0.4) 0%, transparent 100%);
+}
+.r-hero-content { position: relative; z-index: 1; }
+.r-hero-eye { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+.r-hero-time { font-size: 72px; font-weight: 700; letter-spacing: -4px; line-height: 0.92; color: #fff; margin-bottom: 12px; font-variant-numeric: tabular-nums; }
+.r-hero-desc { font-size: 14px; color: rgba(255,255,255,0.5); }
+.r-hero-desc strong { color: rgba(255,255,255,0.8); font-weight: 600; }
+
+.r-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.r-stat { background: var(--bg); border-radius: var(--r-lg); padding: 18px 16px; }
+.r-stat-eye { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; }
+.r-stat-num { font-size: 36px; font-weight: 700; letter-spacing: -2px; line-height: 1; font-variant-numeric: tabular-nums; }
+.r-stat-num.blue { color: var(--blue); }
+.r-stat-unit { font-size: 15px; font-weight: 500; color: var(--text3); }
+.r-stat-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+.r-bus { background: #fff; border: 1px solid var(--border2); border-radius: var(--r-xl); padding: 20px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.r-bus-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.r-bus-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; background: var(--blue-light); color: var(--blue); }
+.r-bus-body { display: flex; align-items: flex-end; gap: 12px; }
+.r-bus-num { font-size: 52px; font-weight: 700; letter-spacing: -3px; color: var(--text); line-height: 1; }
+.r-bus-num-unit { font-size: 18px; color: var(--text3); font-weight: 400; }
+.r-bus-dep { margin-left: auto; text-align: right; }
+.r-bus-dep-time { font-size: 28px; font-weight: 700; letter-spacing: -1.5px; color: var(--blue); font-variant-numeric: tabular-nums; }
+.r-bus-dep-label { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.r-bus-route { display: flex; align-items: center; gap: 8px; padding-top: 14px; margin-top: 2px; border-top: 0.5px solid var(--border); font-size: 13px; color: var(--text2); }
+.r-bus-route .stop { font-weight: 600; color: var(--text); }
+.r-bus-route .arr { margin-left: auto; font-size: 12px; color: var(--text3); font-variant-numeric: tabular-nums; background: var(--bg); padding: 3px 10px; border-radius: 100px; }
+
+.r-summary { background: var(--bg); border-radius: var(--r-xl); padding: 20px; margin-bottom: 10px; }
+.r-summary-eye { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 14px; }
+.r-sum-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 14px; color: var(--text2); }
+.r-sum-item:last-child { border-bottom: none; padding-bottom: 0; }
+.r-sum-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--blue); }
+.r-sum-dot.green { background: var(--green); }
+.r-sum-dot.amber { background: var(--amber); }
+
+.r-detail { background: #fff; border: 1px solid var(--border2); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; }
+.r-detail-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 20px; border: none; background: none; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text); cursor: pointer; }
+.r-detail-chevron { width: 22px; height: 22px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text3); transition: transform 0.25s; }
+.r-detail-btn.open .r-detail-chevron { transform: rotate(180deg); }
+.r-detail-body { display: none; padding: 0 20px 18px; }
+.r-detail-body.open { display: block; }
+.tl-item { display: flex; gap: 16px; padding: 10px 0; border-bottom: 0.5px solid var(--border); align-items: flex-start; }
+.tl-item:last-child { border-bottom: none; }
+.tl-time { font-size: 13px; font-weight: 600; color: var(--blue); min-width: 44px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.tl-desc { font-size: 13px; color: var(--text2); }
+
+.anim { animation: fadeUp 0.4s ease-out both; }
+.d1 { animation-delay: 0.04s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.16s; } .d4 { animation-delay: 0.22s; } .d5 { animation-delay: 0.28s; } .d6 { animation-delay: 0.34s; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.result-grid > * { animation: fadeUp .3s ease-out both; }
-
+.empty { text-align: center; padding: 44px 20px; }
+.empty-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.empty-desc { font-size: 14px; color: var(--text3); line-height: 1.6; }
 </style>
 </head>
 <body>
-<div class="shell">
 
-  <header class="topbar">
-    <div class="topbar-logo">🚌 버스타고 <span>통학하자</span></div>
-    <div class="topbar-sub">Step 02. 스타일 선택 (2/4)</div>
-    <nav class="topbar-tabs">
-      <button class="tab-btn active" onclick="switchTab('setup')">설정</button>
-      <button class="tab-btn" onclick="switchTab('route')">노선 편집</button>
-    </nav>
-  </header>
+<div id="intro">
+  <div class="intro-sky"></div>
+  <div class="intro-content">
+    <div class="intro-logo">Commute Planner</div>
+    <div class="intro-title">버스타고<br><span>통학하자</span></div>
+    <div class="intro-sub">스마트한 등교 루틴 도우미</div>
+  </div>
+  <div class="road-wrap"><div class="road"><div class="road-dashes"></div></div></div>
+  <div class="bus-container" id="busContainer">
+    <div class="bus-idle" id="busIdle">
+      <svg width="128" height="64" viewBox="0 0 128 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="10" width="116" height="42" rx="8" fill="#0071e3"/>
+        <rect x="12" y="6" width="104" height="12" rx="6" fill="#005bb5"/>
+        <rect x="16" y="16" width="18" height="14" rx="3" fill="#e8f4ff" opacity="0.9"/>
+        <rect x="40" y="16" width="18" height="14" rx="3" fill="#e8f4ff" opacity="0.9"/>
+        <rect x="64" y="16" width="18" height="14" rx="3" fill="#e8f4ff" opacity="0.9"/>
+        <rect x="88" y="16" width="18" height="14" rx="3" fill="#e8f4ff" opacity="0.9"/>
+        <rect x="88" y="30" width="22" height="18" rx="3" fill="#005bb5"/>
+        <rect x="6" y="30" width="8" height="10" rx="2" fill="#ffd60a"/>
+        <rect x="16" y="33" width="56" height="10" rx="2" fill="#1a1a2e"/>
+        <text x="44" y="41" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="6" font-weight="600" fill="#ffd60a">대학교 방면</text>
+        <rect x="6" y="50" width="116" height="6" fill="#004b9e"/>
+        <g class="wheel" style="transform-origin: 26px 56px"><circle cx="26" cy="56" r="8" fill="#1c1c1e"/><circle cx="26" cy="56" r="5" fill="#3a3a3c"/></g>
+        <g class="wheel" style="transform-origin: 102px 56px"><circle cx="102" cy="56" r="8" fill="#1c1c1e"/><circle cx="102" cy="56" r="5" fill="#3a3a3c"/></g>
+      </svg>
+    </div>
+  </div>
+  <button class="intro-btn" id="startBtn" onclick="startApp()">시작하기</button>
+</div>
 
-  <aside class="sidebar">
-    <div id="tab-setup">
-      <div class="s-section">
-        <div class="s-title">📚 오늘 첫 수업</div>
+<div id="app">
+  <nav class="navbar">
+    <div class="nav-top">
+      <div class="nav-title">버스타고 통학</div>
+      <div class="nav-mini-bus">🚌</div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab on" id="ntab-setup" onclick="switchTab('setup')">메인</button>
+      <button class="nav-tab" id="ntab-timetable" onclick="switchTab('timetable')">시간표</button>
+      <button class="nav-tab" id="ntab-route" onclick="switchTab('route')">노선설정</button>
+    </div>
+  </nav>
+
+  <div class="scroll">
+
+    <div class="pane on" id="pane-setup">
+      <div class="sec">
+        <div class="sec-label">첫 수업</div>
         <div class="class-grid" id="class-grid"></div>
-        <div id="custom-row" style="display:none;">
-          <input type="time" id="custom-time" value="09:00">
-        </div>
+        <div id="custom-row" style="display:none"><input type="time" id="custom-time" value="09:00"></div>
       </div>
-      <div class="s-divider"></div>
-      <div class="s-section">
-        <div class="s-title">🎨 등교 스타일 선택</div>
+
+      <div class="sec">
+        <div class="sec-label">등교 스타일</div>
         <div class="cond-grid" id="cond-grid"></div>
       </div>
-      <div class="s-divider"></div>
-      <div class="s-section">
-        <div class="s-title">⏱️ 나의 루틴</div>
-        <div class="s-label">준비 시간<span class="s-val" id="v-prep">60분</span></div>
-        <input type="range" min="15" max="120" step="5" value="60" oninput="sv('prep',this.value,'분')">
-        <div class="s-label">정류장 도보<span class="s-val" id="v-walk">10분</span></div>
-        <input type="range" min="1" max="30" step="1" value="10" oninput="sv('walk',this.value,'분')">
+
+      <div class="sec">
+        <div class="sec-label">루틴 설정</div>
+        <div class="range-row">
+          <div class="range-head"><span class="range-name">준비 시간</span><span class="range-val" id="v-prep">60분</span></div>
+          <input type="range" id="r-prep" min="15" max="120" step="5" value="60" oninput="sv('prep',this)">
+        </div>
+        <div class="range-row">
+          <div class="range-head"><span class="range-name">정류장까지 도보</span><span class="range-val" id="v-walk">10분</span></div>
+          <input type="range" id="r-walk" min="1" max="30" step="1" value="10" oninput="sv('walk',this)">
+        </div>
       </div>
-      <button class="btn-generate" onclick="generate()">✨ 루틴 생성하기</button>
+
+      <button class="btn-gen" onclick="generate()">루틴 생성하기</button>
+      <div id="result-area"></div>
     </div>
 
-    <div id="tab-route" style="display:none;">
-      <div class="s-section">
-        <div class="s-title">1구간 — 집 → 환승</div>
-        <input type="text" id="seg1-board" value="중앙역 정류장">
-        <input type="text" id="seg1-exit" value="터미널 정류장">
-        <div id="seg1-buses"></div>
-        <button class="btn-add-bus" onclick="addBus(1)">+ 버스 추가</button>
-      </div>
-      <div class="s-divider"></div>
-      <div class="s-section">
-        <div class="s-title">2구간 — 환승 → 학교</div>
-        <input type="text" id="seg2-board" value="터미널 정류장">
-        <input type="text" id="seg2-exit" value="대학교 정류장">
-        <div id="seg2-buses"></div>
-        <button class="btn-add-bus" onclick="addBus(2)">+ 버스 추가</button>
-      </div>
+    <div class="pane" id="pane-timetable">
+      <div id="timetable-area"></div>
     </div>
-  </aside>
 
-  <main class="main" id="main-panel">
-    <div class="empty-wrap">
-      <div class="em-icon">🌅</div>
-      <h2>오늘의 스타일을 선택하고<br>루틴을 생성해주세요</h2>
+    <div class="pane" id="pane-route">
+      <div id="segments-container"></div>
+      <button class="btn-add-segment" onclick="addSegment()">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        + 환승 구간 추가
+      </button>
     </div>
-  </main>
+
+  </div>
 </div>
 
 <script>
+/* ─── DYNAMIC STATE ─── */
 const S = {
-  prep: 60, walk: 10, buffer: 15, twalk: 5, tbuf: 5,
-  classId: '1', customTime: '09:00', condition: 'relax',
-  seg1: { board: '중앙역', exit: '터미널', buses: [] },
-  seg2: { board: '터미널', exit: '대학교', buses: [] }
+  prep: 60, walk: 10, classId: '1', condition: 'relax',
+  // 구간(Segment) 목록을 배열로 동적 관리!
+  segments: [
+    {
+      id: 1,
+      board: '강동동', exit: '학성공원',
+      buses: [
+        { id: 101, number: '5003', duration: 30, times: '06:03\n06:42\n07:21\n08:01\n08:42\n09:22\n10:01' },
+        { id: 102, number: '742', duration: 44, times: '06:17\n06:38\n07:09\n07:41\n08:07\n08:41\n09:08' }
+      ]
+    },
+    {
+      id: 2,
+      board: '학성공원', exit: '울산대학교',
+      buses: [
+        { id: 201, number: '417', duration: 22, times: '06:03\n06:35\n07:15\n07:36\n08:11\n08:54\n09:28' },
+        { id: 202, number: '114', duration: 25, times: '07:31\n07:45\n07:58\n08:09\n08:17\n08:27\n08:41\n08:59\n09:13\n09:23\n09:36\n09:56\n10:05\n10:31\n10:33' },
+        { id: 203, number: '422', duration: 29, times: '07:01\n07:40\n07:59\n08:15\n08:31\n08:52\n09:09\n09:34\n09:49\n10:01\n10:16\n10:39' }
+      ]
+    }
+  ]
 };
 
 const CLASSES = [
-  {id:'1', label:'1교시', time:'09:00'},
-  {id:'2', label:'2교시', time:'10:00'},
-  {id:'custom', label:'직접 입력', time:null}
+  { id:'1', label:'1교시', time:'09:00' },
+  { id:'2', label:'2교시', time:'10:00' },
+  { id:'3', label:'3교시', time:'11:00' },
+  { id:'custom', label:'직접', time:null }
+];
+const CONDS = [
+  { id:'sleep', icon:'😴', label:'잠 우선형', desc:'최대한 늦게' },
+  { id:'relax', icon:'☕', label:'여유 추구형', desc:'천천히 준비' },
+  { id:'fast', icon:'⚡', label:'효율 중심형', desc:'최단 루트' },
+  { id:'strict', icon:'📚', label:'안정 지향형', desc:'무조건 정시' }
 ];
 
-const CONDITIONS = [
-  {id:'sleep',  icon:'😴', label:'잠 우선형',    desc:'늦게 일어나기'},
-  {id:'relax',  icon:'☕', label:'여유 추구형',    desc:'천천히 준비'},
-  {id:'fast',   icon:'⚡', label:'효율 중심형',    desc:'최단 시간'},
-  {id:'strict', icon:'📚', label:'안정 지향형',    desc:'무조건 정시'}
-];
+let globalId = 500;
+const uid = () => globalId++;
+const pt = s => { const [h,m] = s.trim().split(':').map(Number); return h*60+m; };
+const ft = m => `${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 
-let busId = 1;
-const uid = () => busId++;
+function startApp() {
+  const intro = document.getElementById('intro');
+  const app = document.getElementById('app');
+  intro.classList.add('exit');
+  app.classList.add('visible');
+  setTimeout(() => { app.classList.add('show'); }, 60);
+  setTimeout(() => { intro.style.display = 'none'; }, 600);
+}
 
+/* ─── TABS ─── */
 function switchTab(tab) {
-  document.getElementById('tab-setup').style.display = tab==='setup' ? '' : 'none';
-  document.getElementById('tab-route').style.display = tab==='route' ? '' : 'none';
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='setup')||(i===1&&tab==='route')));
+  document.getElementById('pane-setup').classList.toggle('on', tab==='setup');
+  document.getElementById('pane-timetable').classList.toggle('on', tab==='timetable');
+  document.getElementById('pane-route').classList.toggle('on', tab==='route');
+  
+  document.getElementById('ntab-setup').classList.toggle('on', tab==='setup');
+  document.getElementById('ntab-timetable').classList.toggle('on', tab==='timetable');
+  document.getElementById('ntab-route').classList.toggle('on', tab==='route');
+  
+  if (tab === 'route') renderSegments();
+  if (tab === 'timetable') renderTimetablePane();
 }
 
-function sv(key, val, unit) { S[key] = parseFloat(val); document.getElementById('v-'+key).textContent = val+unit; }
+/* ─── RANGE SLIDERS ─── */
+function sv(key, el) {
+  S[key] = parseFloat(el.value);
+  document.getElementById('v-'+key).textContent = el.value + '분';
+  const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+  el.style.setProperty('--pct', ((val-min)/(max-min)*100)+'%');
+}
+['prep','walk'].forEach(k => {
+  const el = document.getElementById('r-'+k);
+  const min=parseFloat(el.min), max=parseFloat(el.max), val=parseFloat(el.value);
+  el.style.setProperty('--pct', ((val-min)/(max-min)*100)+'%');
+});
 
-function addBus(seg) {
-  S['seg'+seg].buses.push({id:uid(), number:'', duration:20, times:''});
-  renderBuses(seg);
+/* ─── DYNAMIC SEGMENTS & BUSES MANAGEMENT ─── */
+function addSegment() {
+  const nextId = S.segments.length > 0 ? Math.max(...S.segments.map(s=>s.id)) + 1 : 1;
+  // 앞 구간의 하차역을 자동 승차역 권장값으로 지정
+  const prevExit = S.segments.length > 0 ? S.segments[S.segments.length-1].exit : '';
+  S.segments.push({
+    id: nextId,
+    board: prevExit,
+    exit: '',
+    buses: [{ id: uid(), number: '', duration: 20, times: '' }]
+  });
+  renderSegments();
 }
 
-function renderBuses(seg) {
-  const wrap = document.getElementById('seg'+seg+'-buses');
-  wrap.innerHTML = S['seg'+seg].buses.map(bus => `
-    <div class="bus-block">
-      <input type="text" placeholder="버스번호" value="${bus.number}" oninput="updateBus(${seg},${bus.id},'number',this.value)">
-      <textarea placeholder="시간표 (예: 08:10)" oninput="updateBus(${seg},${bus.id},'times',this.value)">${bus.times}</textarea>
+function delSegment(segId) {
+  S.segments = S.segments.filter(s => s.id !== segId);
+  renderSegments();
+}
+
+function updSegmentStation(segId, key, val) {
+  const seg = S.segments.find(s => s.id === segId);
+  if (seg) seg[key] = val;
+}
+
+function addBusToSeg(segId) {
+  const seg = S.segments.find(s => s.id === segId);
+  if (seg) {
+    seg.buses.push({ id: uid(), number: '', duration: 20, times: '' });
+    renderSegments();
+  }
+}
+
+function delBusFromSeg(segId, busId) {
+  const seg = S.segments.find(s => s.id === segId);
+  if (seg) {
+    seg.buses = seg.buses.filter(b => b.id !== busId);
+    renderSegments();
+  }
+}
+
+function updBusInSeg(segId, busId, key, val) {
+  const seg = S.segments.find(s => s.id === segId);
+  if (seg) {
+    const b = seg.buses.find(b => b.id === busId);
+    if (b) b[key] = val;
+  }
+}
+
+/* 노선설정 화면 렌더링 */
+function renderSegments() {
+  const container = document.getElementById('segments-container');
+  if (S.segments.length === 0) {
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-title">구간이 없습니다.</div>
+        <div class="empty-desc">아래 버튼을 눌러 첫 번째 이동 구간을 추가해 주세요.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = S.segments.map((seg, index) => `
+    <div class="segment-block">
+      <div class="segment-header">
+        <span class="segment-title">${index + 1}구간 — ${index === 0 ? '집 출발' : '환승 구간'}</span>
+        <button class="btn-seg-del" onclick="delSegment(${seg.id})">구간 삭제</button>
+      </div>
+      <div class="route-card">
+        <input type="text" placeholder="승차 정류장" value="${seg.board}" oninput="updSegmentStation(${seg.id}, 'board', this.value)">
+        <input type="text" placeholder="하차 정류장" value="${seg.exit}" oninput="updSegmentStation(${seg.id}, 'exit', this.value)">
+      </div>
+      <div id="buses-inside-${seg.id}">
+        ${seg.buses.map(b => `
+          <div class="bus-item">
+            <div class="bus-item-row">
+              <input type="text" placeholder="버스 번호" value="${b.number}" oninput="updBusInSeg(${seg.id}, ${b.id}, 'number', this.value)">
+              <button class="btn-del" onclick="delBusFromSeg(${seg.id}, ${b.id})">삭제</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+              <span style="font-size: 12px; color: var(--text2);">소요 시간(분):</span>
+              <input type="number" style="width: 65px; padding: 5px; border-radius: 6px; border: 1px solid var(--border2);" value="${b.duration}" oninput="updBusInSeg(${seg.id}, ${b.id}, 'duration', this.value)">
+            </div>
+            <textarea placeholder="시간표 입력 (한 줄에 하나씩)&#10;08:10&#10;08:30" oninput="updBusInSeg(${seg.id}, ${b.id}, 'times', this.value)">${b.times}</textarea>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-add" onclick="addBusToSeg(${seg.id})">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        버스 추가
+      </button>
     </div>
   `).join('');
 }
 
-function updateBus(seg, id, key, val) { const b = S['seg'+seg].buses.find(b=>b.id===id); if(b) b[key]=val; }
+/* ─── TIMETABLE PAGE RENDER ─── */
+function renderTimetablePane() {
+  const area = document.getElementById('timetable-area');
+  if (S.segments.length === 0) {
+    area.innerHTML = `
+      <div class="empty">
+        <div class="empty-title">등록된 시간표가 없습니다</div>
+        <div class="empty-desc">노선설정 페이지에서 먼저 구간과 버스를 추가해 주세요.</div>
+      </div>`;
+    return;
+  }
 
-function renderClasses() {
-  document.getElementById('class-grid').innerHTML = CLASSES.map(c=>`<button class="class-btn ${S.classId===c.id?'active':''}" onclick="selClass('${c.id}')"><div class="cb-label">${c.label}</div></button>`).join('');
+  area.innerHTML = S.segments.map((seg, idx) => `
+    <div class="tt-card">
+      <div class="tt-seg-title">${idx+1}구간 전체 시간표</div>
+      <div class="tt-station">🚌 ${seg.board || '미지정'} → ${seg.exit || '미지정'}</div>
+      ${seg.buses.map(b => {
+        const timesArr = b.times.split('\n').map(t=>t.trim()).filter(Boolean);
+        return `
+          <div class="tt-bus-box">
+            <div class="tt-bus-head">
+              <span class="tt-bus-name">${b.number || '번호 없음'}</span>
+              <span class="tt-bus-dur">${b.duration}분 소요</span>
+            </div>
+            <div class="tt-times-grid">
+              ${timesArr.length === 0 ? '<span style="font-size:11px;color:var(--text3)">등록된 시간표가 없습니다.</span>' : timesArr.map(t=>`<span class="tt-time-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `).join('');
 }
-function selClass(id) { S.classId=id; document.getElementById('custom-row').style.display = id==='custom'?'':'none'; renderClasses(); }
 
+/* ─── CLASS / COND SELECTION ─── */
+function renderClasses() {
+  document.getElementById('class-grid').innerHTML = CLASSES.map(c=>`
+    <button class="class-btn${S.classId===c.id?' on':''}" onclick="selClass('${c.id}')">
+      <span class="cl">${c.label}</span>
+      <span class="ct">${c.time||'--:--'}</span>
+    </button>`).join('');
+}
+function selClass(id) {
+  S.classId = id;
+  document.getElementById('custom-row').style.display = id==='custom' ? '' : 'none';
+  renderClasses();
+}
 function renderConds() {
-  document.getElementById('cond-grid').innerHTML = CONDITIONS.map(c=>`<div class="cond-pill ${S.condition===c.id?'active':''}" onclick="selCond('${c.id}')"><div class="ci">${c.icon}</div><div class="ct">${c.label}</div></div>`).join('');
+  document.getElementById('cond-grid').innerHTML = CONDS.map(c=>`
+    <div class="cond-pill${S.condition===c.id?' on':''}" onclick="selCond('${c.id}')">
+      <div class="ci">${c.icon}</div>
+      <div class="ct">${c.label}</div>
+      <div class="cd">${c.desc}</div>
+    </div>`).join('');
 }
 function selCond(id) { S.condition=id; renderConds(); }
 
-const pt = s => { const[h,m]=s.trim().split(':').map(Number); return h*60+m; };
-const ft = m => `${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+/* ─── MULTI-SEGMENT ROUTINE BACKWARDS COMPUTE ─── */
+function compute(ct) {
+  if (S.segments.length === 0) return null;
+  
+  let prep = S.prep;
+  let buf = 15;
+  if (S.condition === 'relax') prep += 15;
+  if (S.condition === 'fast') { prep -= 10; buf = 5; }
+  if (S.condition === 'strict') buf = 20;
 
-function generate() {
-  const ct = S.classId==='custom' ? document.getElementById('custom-time').value : CLASSES.find(c=>c.id===S.classId).time;
-  const result = compute(ct);
-  renderResult(result);
-}
+  const classMin = pt(ct);
+  let currentGoal = classMin - buf; 
+  
+  let chosenRoute = [];
 
-function compute(classTime) {
-  let prep=S.prep, buffer=S.buffer;
-  if(S.condition==='relax') prep += 15;
-  if(S.condition==='fast') { prep -= 10; buffer = 5; }
+  // 마지막 구간부터 역순으로 탐색하는 동적 계획 알고리즘 역추적
+  for (let i = S.segments.length - 1; i >= 0; i--) {
+    const seg = S.segments[i];
+    let bestBusOption = null;
 
-  const classMin = pt(classTime);
-  const arrivalGoal = classMin - buffer;
-
-  // 2구간 버스 찾기
-  let bestB2 = null;
-  S.seg2.buses.forEach(bus => {
-    bus.times.split('\n').map(t=>t.trim()).filter(Boolean).forEach(t => {
-      const dep = pt(t), arr = dep + Number(bus.duration);
-      if(arr <= arrivalGoal && (!bestB2 || dep > bestB2.dep)) bestB2 = {dep, arr, bus};
+    seg.buses.forEach(bus => {
+      const times = bus.times.split('\n').map(t=>t.trim()).filter(Boolean);
+      times.forEach(t => {
+        const dep = pt(t);
+        const arr = dep + Number(bus.duration);
+        
+        // 목표 시간보다 일찍 도착하고, 그 중 가장 늦게 출발하는 버스 채택
+        if (arr <= currentGoal) {
+          if (!bestBusOption || dep > bestBusOption.dep) {
+            bestBusOption = { dep, arr, bus, seg, segIndex: i };
+          }
+        }
+      });
     });
-  });
 
-  if(!bestB2) return null;
+    if (!bestBusOption) return null; // 중간 구간 체인이 끊어지면 실패 처리
+    chosenRoute.unshift(bestBusOption);
+    
+    // 다음 상위 구간의 도착 목표 시간 설정 (최소 환승/대기 버퍼 5분 확보)
+    currentGoal = bestBusOption.dep - 5; 
+  }
 
-  // 1구간 버스 찾기 (환승시간 5분 가정)
-  let bestB1 = null;
-  const transferLimit = bestB2.dep - 5;
-  S.seg1.buses.forEach(bus => {
-    bus.times.split('\n').map(t=>t.trim()).filter(Boolean).forEach(t => {
-      const dep = pt(t), arr = dep + Number(bus.duration);
-      if(arr <= transferLimit && (!bestB1 || dep > bestB1.dep)) bestB1 = {dep, arr, bus};
-    });
-  });
-
-  if(!bestB1) return null;
-
-  const leaveHome = bestB1.dep - S.walk;
+  const leave = chosenRoute[0].dep - S.walk;
   return {
-    wakeUp: leaveHome - prep,
-    leaveHome,
-    b1: bestB1,
-    b2: bestB2,
-    classMin,
-    arrival: bestB2.arr
+    wakeUp: leave - prep,
+    leaveHome: leave,
+    route: chosenRoute,
+    classMin: classMin,
+    arrival: chosenRoute[chosenRoute.length - 1].arr
   };
 }
 
-function renderResult(tl) {
-  const panel = document.getElementById('main-panel');
-  if(!tl) { panel.innerHTML = '<div class="empty-wrap"><h2>노선 정보와 시간표를 입력해주세요!</h2></div>'; return; }
+/* ─── ROUTINE GENERATE VIEW ─── */
+function generate() {
+  const ct = S.classId==='custom'
+    ? document.getElementById('custom-time').value
+    : CLASSES.find(c=>c.id===S.classId).time;
+    
+  const tl = compute(ct);
+  const area = document.getElementById('result-area');
+  
+  if(!tl) {
+    area.innerHTML=`
+      <div class="empty">
+        <div class="empty-title">최적의 루틴을 찾지 못했습니다</div>
+        <div class="empty-desc">노선설정 탭에서 모든 환승 구간의<br>버스 번호와 시간표가 올바르게 입력되었는지<br>혹은 등교 시간이 너무 촉박한지 확인해 주세요.</div>
+      </div>`;
+    return;
+  }
+  
+  const free = tl.classMin - tl.arrival;
+  const freeColor = free>=20?'var(--green)':free>=10?'var(--blue)':free>=5?'var(--amber)':'var(--red)';
+  const freeMsg = free>=20?'여유롭게':free>=10?'적당히':free>=5?'빠듯하게':'아슬아슬';
 
-  panel.innerHTML = `
-    <div class="result-grid">
-      <div class="hero-card full">
-        <div class="hero-eyebrow">집에서 나가야 하는 시간</div>
-        <div class="hero-time">${ft(tl.leaveHome)}</div>
-        <div class="hero-desc">${S.seg1.board}까지 ${S.walk}분 이동 포함</div>
+  let routeCardsHtml = tl.route.map((item, idx) => `
+    <div class="r-bus anim d3">
+      <div class="r-bus-head">
+        <span class="r-bus-badge">${idx+1}구간 이동</span>
       </div>
-      <div class="wake-card">
-        <div class="wc-eye">⏰ 알람 시간</div>
-        <div class="wc-time">${ft(tl.wakeUp)}</div>
-      </div>
-      <div class="free-card plenty">
-        <div class="fc-eye">🏫 도착 여유</div>
-        <div class="fc-num">${tl.classMin - tl.arrival}분</div>
-        <div class="fc-msg">오늘도 지각 걱정 없어요!</div>
-      </div>
-      <div class="ai-card full">
-        <div class="bc-eye">🤖 AI 피드백</div>
-        <div class="af-list">
-          <div class="af-item">✅ ${ft(tl.b1.dep)}에 ${tl.b1.bus.number}번 버스를 타야 합니다.</div>
-          <div class="af-item">✅ ${ft(tl.b1.arr)} 하차 후 환승하여 ${ft(tl.b2.dep)}에 ${tl.b2.bus.number}번을 탑승하세요.</div>
+      <div class="r-bus-body">
+        <div>
+          <div class="r-bus-num">${item.bus.number || '?'}<span class="r-bus-num-unit">번</span></div>
+        </div>
+        <div class="r-bus-dep">
+          <div class="r-bus-dep-time">${ft(item.dep)}</div>
+          <div class="r-bus-dep-label">출발</div>
         </div>
       </div>
+      <div class="r-bus-route">
+        <span class="stop">${item.seg.board || '승차'}</span>
+        <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5h12M8 1l4 4-4 4" stroke="#aeaeb2" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+        <span class="stop">${item.seg.exit || '하차'}</span>
+        <span class="arr">${ft(item.arr)} 하차</span>
+      </div>
     </div>
-    <div class="detail-card">
-      <button class="detail-toggle" onclick="toggleDetail()">상세 일정 보기 <span class="arrow">▾</span></button>
-      <div class="detail-body" id="dbody">
-        <ul class="mini-tl">
-          <li><span class="mtl-time">${ft(tl.wakeUp)}</span> 기상 및 준비</li>
-          <li><span class="mtl-time">${ft(tl.leaveHome)}</span> 집 출발</li>
-          <li><span class="mtl-time">${ft(tl.b1.dep)}</span> ${tl.b1.bus.number}번 탑승</li>
-          <li><span class="mtl-time">${ft(tl.b2.dep)}</span> 환승 버스 탑승</li>
-          <li><span class="mtl-time">${ft(tl.arrival)}</span> 학교 도착</li>
-        </ul>
+  `).join('');
+
+  let summaryItemsHtml = `
+    <div class="r-sum-item"><span class="r-sum-dot green"></span>${ft(tl.wakeUp)} 기상, ${S.prep}분 준비</div>
+    <div class="r-sum-item"><span class="r-sum-dot"></span>${ft(tl.leaveHome)} 집 출발 (도보 이동)</div>
+  `;
+  tl.route.forEach((item, idx) => {
+    summaryItemsHtml += `<div class="r-sum-item"><span class="r-sum-dot"></span>${ft(item.dep)} [${idx+1}구간] ${item.bus.number}번 탑승 → ${ft(item.arr)} 하차</div>`;
+  });
+  summaryItemsHtml += `<div class="r-sum-item"><span class="r-sum-dot green"></span>${ft(tl.arrival)} 최종 도착 · <span style="color:${freeColor};font-weight:600">${free}분 전</span></div>`;
+
+  let detailItemsHtml = `
+    <div class="tl-item"><span class="tl-time">${ft(tl.wakeUp)}</span><span class="tl-desc">기상 및 등교 준비 시작</span></div>
+    <div class="tl-item"><span class="tl-time">${ft(tl.leaveHome)}</span><span class="tl-desc">집 출발 (정류장까지 도보 ${S.walk}분)</span></div>
+  `;
+  tl.route.forEach((item, idx) => {
+    detailItemsHtml += `
+      <div class="tl-item"><span class="tl-time">${ft(item.dep)}</span><span class="tl-desc">${item.seg.board}에서 ${item.bus.number}번 버스 탑승</span></div>
+      <div class="tl-item"><span class="tl-time">${ft(item.arr)}</span><span class="tl-desc">${item.seg.exit} 정류장 도착</span></div>
+    `;
+  });
+  detailItemsHtml += `<div class="tl-item"><span class="tl-time">${ft(tl.arrival)}</span><span class="tl-desc">학교 정문 도착 및 등교 완료 🎓</span></div>`;
+
+  area.innerHTML = `
+    <div class="r-hero anim d1">
+      <div class="r-hero-sky"></div>
+      <div class="r-hero-content">
+        <div class="r-hero-eye">집에서 나가는 시간</div>
+        <div class="r-hero-time">${ft(tl.leaveHome)}</div>
+        <div class="r-hero-desc">도보 <strong>${S.walk}분</strong>으로 첫 정류장 이동</div>
+      </div>
+    </div>
+
+    <div class="r-cols">
+      <div class="r-stat anim d2">
+        <div class="r-stat-eye">알람 설정</div>
+        <div class="r-stat-num blue">${ft(tl.wakeUp)}</div>
+        <div class="r-stat-sub">기상 목표 타임</div>
+      </div>
+      <div class="r-stat anim d2">
+        <div class="r-stat-eye">도착 여유</div>
+        <div class="r-stat-num" style="color:${freeColor}">${free}<span class="r-stat-unit">분</span></div>
+        <div class="r-stat-sub">${freeMsg} 강의실 도착</div>
+      </div>
+    </div>
+
+    ${routeCardsHtml}
+
+    <div class="r-summary anim d5">
+      <div class="r-summary-eye">오늘의 동적 등교 루틴 요약</div>
+      ${summaryItemsHtml}
+    </div>
+
+    <div class="r-detail anim d6">
+      <button class="r-detail-btn" onclick="togDetail(this)">
+        전체 상세 타임라인
+        <span class="r-detail-chevron">▾</span>
+      </button>
+      <div class="r-detail-body" id="dbody">
+        ${detailItemsHtml}
       </div>
     </div>
   `;
 }
 
-function toggleDetail() {
-  document.getElementById('dbody').classList.toggle('open');
-  document.querySelector('.detail-toggle').classList.toggle('open');
+function togDetail(btn) {
+  const body = document.getElementById('dbody');
+  body.classList.toggle('open');
+  btn.classList.toggle('open');
 }
 
+/* ─── INIT ─── */
 renderClasses();
 renderConds();
+renderSegments();
 </script>
 </body>
 </html>
