@@ -1177,8 +1177,8 @@ function analyzeCrowdByHour(busNumber) {
   return { counts, total: relevant.length, dominant: dominant[0] };
 }
 
-/* ─── AI 답변 생성 ─── */
-async function getAIAnswer(questionId) {
+/* ─── 오프라인 답변 생성 (네트워크 불필요) ─── */
+function getAIAnswer(questionId) {
   // 혼잡도 질문은 정류장 불필요
   if (questionId !== 'least-crowd' && !currentStop) {
     const sel = document.getElementById('chat-stop-sel');
@@ -1191,81 +1191,121 @@ async function getAIAnswer(questionId) {
   const chatScroll = document.getElementById('chat-scroll');
   const presets = document.getElementById('chat-presets');
   const QUESTION_LABELS = {
-    'next-bus': '⏱ 지금 기준 가장 빨리 오는 버스는?',
-    'least-time': '🚀 탑승 시간이 가장 짧은 버스는?',
+    'next-bus':    '⏱ 지금 기준 가장 빨리 오는 버스는?',
+    'least-time':  '🚀 탑승 시간이 가장 짧은 버스는?',
     'least-crowd': '🧍 사람이 가장 적은 버스는?'
   };
   addChatMsg('user', QUESTION_LABELS[questionId]);
   presets.style.display = 'none';
 
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const nowStr = ft(nowMin);
+  let answer = '';
+
+  /* ── 빨리 오는 버스 ── */
+  if (questionId === 'next-bus') {
+    const nextBuses = getNextBuses(); // currentStop 기준 필터됨
+    if (!nextBuses.length) {
+      answer = `현재 <b>${currentStop}</b>에서 탈 수 있는 버스가 없어요 😢<br>오늘 시간표가 끝났거나 등록된 버스가 없는 것 같아요.`;
+    } else {
+      const b = nextBuses[0];
+      const wait = b.dep - nowMin;
+      const waitStr = wait <= 0 ? '곧 출발' : `${wait}분 후`;
+      const lines = [`지금 <b>${currentStop}</b>에서 가장 빨리 오는 버스는 🚌 <b>${b.number}번</b>이에요!`,
+        `<b>${ft(b.dep)}</b> 출발 (<b>${waitStr}</b>), 목적지까지 약 <b>${b.duration}분</b> 소요돼요.`];
+      // 2등도 있으면 참고용으로
+      if (nextBuses.length >= 2) {
+        const b2 = nextBuses[1];
+        const wait2 = b2.dep - nowMin;
+        lines.push(`그 다음은 <b>${b2.number}번</b> — ${ft(b2.dep)} 출발 (${wait2}분 후)`);
+      }
+      answer = lines.join('<br>');
+    }
+
+  /* ── 소요시간 짧은 버스 ── */
+  } else if (questionId === 'least-time') {
+    const nextBuses = getNextBuses();
+    if (!nextBuses.length) {
+      answer = `현재 <b>${currentStop}</b>에서 탈 수 있는 버스가 없어요 😢<br>시간표를 확인해 주세요.`;
+    } else {
+      const sorted = [...nextBuses].sort((a, b) => a.duration - b.duration);
+      const best = sorted[0];
+      const wait = best.dep - nowMin;
+      const waitStr = wait <= 0 ? '곧 출발' : `${wait}분 후`;
+      const lines = [`<b>${currentStop}</b>에서 탑승 시간이 가장 짧은 버스는 🚀 <b>${best.number}번</b>이에요!`,
+        `소요시간 <b>${best.duration}분</b>, <b>${ft(best.dep)}</b> 출발 (${waitStr}).`];
+      if (sorted.length >= 2) {
+        const s2 = sorted[1];
+        lines.push(`참고로 <b>${s2.number}번</b>은 ${s2.duration}분 소요예요.`);
+      }
+      answer = lines.join('<br>');
+    }
+
+  /* ── 사람 적은 버스 ── */
+  } else if (questionId === 'least-crowd') {
+    const allBuses = getAllBuses();
+    if (!allBuses.length) {
+      answer = '등록된 버스가 없어요. 노선설정에서 버스를 먼저 추가해 주세요.';
+    } else {
+      const crowdEmoji = { few: '🟢', mid: '🟡', many: '🔴' };
+      const crowdText  = { few: '여유로운 편', mid: '보통', many: '혼잡한 편' };
+      const ranked = allBuses.map(b => {
+        const a = analyzeCrowdByHour(b.number) || analyzeCrowd(b.number);
+        return { ...b, analysis: a };
+      });
+      const withData = ranked.filter(b => b.analysis);
+      const noData   = ranked.filter(b => !b.analysis);
+
+      if (!withData.length) {
+        answer = '아직 혼잡도 기록이 없어요 😅<br>버스를 탈 때마다 아래 버튼으로 기록해 두면 다음엔 바로 알려드릴게요!';
+      } else {
+        // few=0, mid=1, many=2 점수로 정렬
+        const score = { few: 0, mid: 1, many: 2 };
+        withData.sort((a, b) => score[a.analysis.dominant] - score[b.analysis.dominant]);
+        const best = withData[0];
+        const lines = [
+          `기록 기준으로 사람이 가장 적은 버스는 ${crowdEmoji[best.analysis.dominant]} <b>${best.number}번</b>이에요!`,
+          `최근 <b>${best.analysis.total}회</b> 기록에서 주로 <b>${crowdText[best.analysis.dominant]}</b>이었어요.`
+        ];
+        if (withData.length >= 2) {
+          const rest = withData.slice(1).map(b => `${crowdEmoji[b.analysis.dominant]} ${b.number}번(${crowdText[b.analysis.dominant]})`).join(', ');
+          lines.push(`다른 버스: ${rest}`);
+        }
+        if (noData.length) {
+          lines.push(`<span style="color:var(--text3);font-size:12px">※ ${noData.map(b=>b.number+'번').join(', ')}은 기록 없음</span>`);
+        }
+        answer = lines.join('<br>');
+      }
+    }
+  }
+
+  // 약간의 딜레이로 자연스러운 느낌
   const loadId = 'load-' + Date.now();
-  chatScroll.insertAdjacentHTML('beforeend', `
-    <div class="chat-msg ai" id="${loadId}" style="padding:0">
-      <div class="chat-typing"><span></span><span></span><span></span></div>
-    </div>`);
+  chatScroll.insertAdjacentHTML('beforeend',
+    `<div class="chat-msg ai" id="${loadId}" style="padding:0"><div class="chat-typing"><span></span><span></span><span></span></div></div>`);
   chatScroll.scrollTop = chatScroll.scrollHeight;
 
-  const nextBuses = getNextBuses();
-  const allBuses = getAllBuses();
-  const nowStr = (() => { const n = new Date(); return String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0'); })();
-  const stopCtx = currentStop ? `사용자의 현재 정류장: ${currentStop}` : '';
-  let prompt = '';
-
-  if (questionId === 'next-bus') {
-    const top = nextBuses.slice(0, 4).map(b =>
-      '- ' + b.number + '번 버스 (' + b.seg.board + '→' + b.seg.exit + '): ' + ft(b.dep) + ' 출발, ' + b.duration + '분 소요'
-    ).join('\n');
-    prompt = '현재 시각: ' + nowStr + '\n' + stopCtx + '\n탑승 가능한 버스 시간표:\n' + (top || '해당 정류장에서 탈 수 있는 버스가 없음') + '\n\n지금 가장 빨리 탈 수 있는 버스를 알려주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
-  } else if (questionId === 'least-time') {
-    const sorted = [...nextBuses].sort((a,b) => a.duration - b.duration).slice(0, 4);
-    const info = sorted.map(b => '- ' + b.number + '번: 소요 ' + b.duration + '분 (' + ft(b.dep) + ' 출발, ' + b.seg.board + '→' + b.seg.exit + ')').join('\n');
-    prompt = '현재 시각: ' + nowStr + '\n' + stopCtx + '\n탑승 가능한 버스 소요시간 데이터:\n' + (info || '해당 정류장에서 탈 수 있는 버스가 없음') + '\n\n탑승 시간이 가장 짧은 버스를 추천해주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
-  } else if (questionId === 'least-crowd') {
-    const crowdSummary = allBuses.map(b => {
-      const a = analyzeCrowdByHour(b.number) || analyzeCrowd(b.number);
-      if (!a) return '- ' + b.number + '번: 기록 없음';
-      const emoji = { few: '🟢 여유', mid: '🟡 보통', many: '🔴 혼잡' };
-      return '- ' + b.number + '번: 최근 ' + a.total + '회 기록 → 주로 ' + emoji[a.dominant];
-    }).join('\n');
-    prompt = '사용자가 기록한 혼잡도 데이터:\n' + (crowdSummary || '기록 없음') + '\n\n사람이 가장 적은 버스를 알려주세요. 기록 없으면 솔직히 말해주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
-  }
-
-  let answer = '';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: '당신은 버스 통학 앱의 친근한 AI 어시스턴트입니다. 사용자의 등교 버스 데이터를 분석해 도움이 되는 정보를 제공합니다. 항상 한국어로, 친근하고 간결하게 답변하세요.',
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    answer = (data.content || []).map(c => c.text || '').join('') || '답변을 받지 못했어요.';
-  } catch(e) {
-    answer = '네트워크 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
-  }
-
-  document.getElementById(loadId)?.remove();
-  addChatMsg('ai', answer);
-
-  if (questionId === 'least-crowd') {
-    chatScroll.insertAdjacentHTML('beforeend', `
-      <div style="padding:4px 0 8px">
-        <button onclick="openLogSheet()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--blue);background:var(--blue-light);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ 혼잡도 직접 기록하기</button>
-      </div>`);
-    chatScroll.scrollTop = chatScroll.scrollHeight;
-  }
-
   setTimeout(() => {
-    chatScroll.insertAdjacentHTML('beforeend', `
-      <div style="padding:4px 0 8px">
-        <button onclick="resetChatPresets()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">다른 질문하기</button>
-      </div>`);
+    document.getElementById(loadId)?.remove();
+    addChatMsg('ai', answer);
+
+    if (questionId === 'least-crowd') {
+      chatScroll.insertAdjacentHTML('beforeend', `
+        <div style="padding:4px 0 8px">
+          <button onclick="openLogSheet()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--blue);background:var(--blue-light);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ 혼잡도 직접 기록하기</button>
+        </div>`);
+    }
     chatScroll.scrollTop = chatScroll.scrollHeight;
-  }, 300);
+
+    setTimeout(() => {
+      chatScroll.insertAdjacentHTML('beforeend', `
+        <div style="padding:4px 0 8px">
+          <button onclick="resetChatPresets()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">다른 질문하기</button>
+        </div>`);
+      chatScroll.scrollTop = chatScroll.scrollHeight;
+    }, 200);
+  }, 600);
 }
 
 function addChatMsg(role, text) {
@@ -1370,13 +1410,13 @@ startApp = function() {
     <div class="sheet-handle"></div>
     <div class="sheet-header">
       <div class="sheet-title-wrap">
-        <div class="sheet-title-icon">🤖</div>
-        <span class="sheet-title">AI 버스 어시스턴트</span>
+        <div class="sheet-title-icon">🚌</div>
+        <span class="sheet-title">버스 도우미</span>
       </div>
       <button class="sheet-close" onclick="closeAIChat()">✕</button>
     </div>
     <div class="chat-scroll" id="chat-scroll">
-      <div class="chat-msg ai">안녕하세요! 버스 관련해서 궁금한 게 있으면 아래에서 선택해 주세요 🚌</div>
+      <div class="chat-msg ai">안녕하세요! 정류장을 선택하고 아래 질문을 눌러보세요 🚌<br><span style="font-size:12px;color:var(--text3)">인터넷 없이도 바로 답해드려요</span></div>
     </div>
     <div class="chat-stop-row">
       <span class="chat-stop-label">📍 현재 정류장</span>
