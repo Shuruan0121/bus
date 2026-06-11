@@ -109,15 +109,65 @@ body {
 .intro-sub { font-size: 15px; color: var(--text2); margin-top: 10px; font-weight: 300; letter-spacing: -0.2px; }
 
 .intro-btn {
-  position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
-  z-index: 10; padding: 15px 44px; border-radius: 100px; border: none;
-  background: var(--blue); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
-  cursor: pointer; letter-spacing: -0.3px; opacity: 0;
-  animation: btnAppear 0.5s ease-out 2.6s forwards; transition: transform 0.15s, background 0.15s;
-  box-shadow: 0 4px 20px rgba(0,113,227,0.3); white-space: nowrap;
+  position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
+  z-index: 10; border: none; background: none; cursor: pointer; opacity: 0;
+  animation: btnAppear 0.5s ease-out 2.6s forwards;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
-.intro-btn:active { transform: translateX(-50%) scale(0.97); background: #0062c3; }
+.bell-outer {
+  width: 84px; height: 108px; border-radius: 42px / 54px;
+  background: linear-gradient(160deg, #2a0000 0%, #1a0000 100%);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.08);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 10px 8px 12px; position: relative; transition: transform 0.1s;
+}
+.bell-hole-top {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #0a0a0a; border: 1px solid #333;
+  position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+}
+.bell-stop-window {
+  width: 62px; height: 28px; border-radius: 14px;
+  background: linear-gradient(135deg, #cc0000 0%, #ff1a1a 40%, #cc0000 100%);
+  box-shadow: 0 0 10px rgba(255,30,30,0.6), inset 0 1px 3px rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 14px;
+  animation: stopGlow 1.8s ease-in-out infinite; animation-delay: 3.2s;
+}
+.bell-stop-text {
+  font-size: 11px; font-weight: 800; color: #ffcccc;
+  letter-spacing: 2px; font-family: -apple-system, sans-serif;
+}
+.bell-push-btn {
+  width: 46px; height: 38px; border-radius: 8px;
+  background: linear-gradient(160deg, #e03030 0%, #b81c1c 100%);
+  box-shadow: 0 4px 0 #7a0f0f, 0 5px 10px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.15);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  transition: transform 0.08s, box-shadow 0.08s; margin-bottom: 2px;
+}
+.bell-push-dot { width: 16px; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.4); }
+.bell-hole-bot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #0a0a0a; border: 1px solid #333;
+  position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+}
+.intro-btn:active .bell-outer { transform: scale(0.95); }
+.intro-btn:active .bell-push-btn {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #7a0f0f, 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(0,0,0,0.2);
+}
+.bell-label {
+  font-size: 12px; font-weight: 700; color: rgba(160,20,20,0.9);
+  letter-spacing: 0.3px; background: rgba(255,255,255,0.9);
+  padding: 4px 16px; border-radius: 100px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
 @keyframes btnAppear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes stopGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,30,30,0.6), inset 0 1px 3px rgba(255,255,255,0.15); }
+  50% { box-shadow: 0 0 18px rgba(255,30,30,0.9), 0 0 6px rgba(255,30,30,0.4), inset 0 1px 3px rgba(255,255,255,0.15); }
+}
 #intro.exit { animation: introExit 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 @keyframes introExit { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
 
@@ -198,13 +248,13 @@ input[type=time]:focus { border-color: var(--blue); background: #fff; }
 .cond-pill.on .ct { color: var(--blue); }
 
 /* ─── RANGE SLIDERS ─── */
-.range-row { margin-bottom: 18px; }
+.range-row { margin-bottom: 18px; padding: 0 4px; }
 .range-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .range-name { font-size: 15px; font-weight: 500; color: var(--text); }
 .range-val { font-size: 15px; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
 input[type=range] {
-  width: 100%; height: 4px; border-radius: 4px; -webkit-appearance: none; appearance: none;
-  background: var(--bg); outline: none; cursor: pointer;
+  width: calc(100% - 24px); height: 4px; border-radius: 4px; -webkit-appearance: none; appearance: none;
+  background: var(--bg); outline: none; cursor: pointer; display: block; margin: 0 12px;
 }
 input[type=range]::-webkit-slider-runnable-track {
   height: 4px; border-radius: 4px;
@@ -307,7 +357,7 @@ textarea:focus { border-color: var(--blue); }
 .r-bus-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; background: var(--blue-light); color: var(--blue); }
 .r-bus-body { display: flex; align-items: flex-end; gap: 12px; }
 .r-bus-num { font-size: 52px; font-weight: 700; letter-spacing: -3px; color: var(--text); line-height: 1; }
-.r-bus-num-unit { font-size: 18px; color: var(--text3); font-weight: 400; }
+.r-bus-num-unit { font-size: 18px; color: var(--text3); font-weight: 400; margin-left: 6px; }
 .r-bus-dep { margin-left: auto; text-align: right; }
 .r-bus-dep-time { font-size: 28px; font-weight: 700; letter-spacing: -1.5px; color: var(--blue); font-variant-numeric: tabular-nums; }
 .r-bus-dep-label { font-size: 12px; color: var(--text3); margin-top: 3px; }
@@ -340,6 +390,203 @@ textarea:focus { border-color: var(--blue); }
 .empty { text-align: center; padding: 44px 20px; }
 .empty-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
 .empty-desc { font-size: 14px; color: var(--text3); line-height: 1.6; }
+
+/* ─── FAB ─── */
+#ai-fab {
+  position: fixed; bottom: 28px; right: 20px; z-index: 200;
+  width: 56px; height: 56px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, #0071e3, #005bb5);
+  box-shadow: 0 4px 20px rgba(0,113,227,0.4);
+  display: none; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+#ai-fab.visible { display: flex; }
+#ai-fab:active { transform: scale(0.93); box-shadow: 0 2px 10px rgba(0,113,227,0.3); }
+.fab-icon { font-size: 22px; line-height: 1; }
+
+/* ─── AI CHAT SHEET ─── */
+#ai-sheet {
+  position: fixed; inset: 0; z-index: 300;
+  display: none; flex-direction: column;
+}
+#ai-sheet.open { display: flex; }
+.sheet-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  animation: bdIn 0.25s ease;
+}
+@keyframes bdIn { from { opacity: 0; } to { opacity: 1; } }
+.sheet-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  max-width: 430px; margin: 0 auto;
+  background: #fff; border-radius: 24px 24px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  max-height: 92vh; display: flex; flex-direction: column;
+  animation: sheetUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border2); margin: 12px auto 0;
+}
+.sheet-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 0.5px solid var(--border);
+}
+.sheet-title-wrap { display: flex; align-items: center; gap: 10px; }
+.sheet-title-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg,#0071e3,#005bb5);
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.sheet-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.sheet-close {
+  width: 30px; height: 30px; border-radius: 50%; border: none;
+  background: var(--bg); color: var(--text2); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* chat messages */
+.chat-scroll {
+  flex: 1; overflow-y: auto; padding: 16px 16px 4px;
+  scrollbar-width: none; display: flex; flex-direction: column; gap: 10px;
+}
+.chat-scroll::-webkit-scrollbar { display: none; }
+.chat-msg {
+  max-width: 82%; padding: 11px 14px; border-radius: 18px;
+  font-size: 14px; line-height: 1.5; animation: msgIn 0.2s ease-out;
+}
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.chat-msg.user {
+  align-self: flex-end; background: var(--blue); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg.ai {
+  align-self: flex-start; background: var(--bg);
+  color: var(--text); border-bottom-left-radius: 4px;
+}
+.chat-msg.ai.loading { color: var(--text3); font-style: italic; }
+.chat-typing { display: flex; gap: 4px; align-items: center; padding: 13px 16px; }
+.chat-typing span {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--text3);
+  animation: dot 1.2s infinite;
+}
+.chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%,80%,100% { transform: scale(0.7); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+/* 정류장 선택 영역 */
+.chat-stop-row {
+  padding: 10px 16px 0;
+  display: flex; align-items: center; gap: 8px;
+  border-top: 0.5px solid var(--border);
+}
+.chat-stop-label {
+  font-size: 12px; font-weight: 600; color: var(--text3);
+  white-space: nowrap; flex-shrink: 0;
+}
+.chat-stop-sel {
+  flex: 1; padding: 8px 10px; border-radius: 10px;
+  border: 1px solid var(--border2); background: var(--bg);
+  color: var(--text); font-family: inherit; font-size: 13px;
+  outline: none; -webkit-appearance: none; appearance: none;
+}
+.chat-stop-sel:focus { border-color: var(--blue); background: #fff; }
+.chat-stop-sel.unset { color: var(--red); border-color: var(--red); background: var(--red-light); }
+
+/* preset question chips */
+.chat-presets {
+  padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 7px;
+}
+.preset-label {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px;
+}
+.preset-chip {
+  padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border2);
+  background: #fff; color: var(--text); font-size: 13.5px; font-weight: 500;
+  cursor: pointer; text-align: left; font-family: inherit;
+  transition: background 0.12s, border-color 0.12s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  -webkit-tap-highlight-color: transparent;
+}
+.preset-chip:active { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+.preset-chip .chip-icon { margin-right: 8px; }
+
+/* ─── CROWDING LOG SHEET ─── */
+#log-sheet {
+  position: fixed; inset: 0; z-index: 400;
+  display: none; flex-direction: column;
+}
+#log-sheet.open { display: flex; }
+.log-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  max-width: 430px; margin: 0 auto;
+  background: #fff; border-radius: 24px 24px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 20px);
+  max-height: 85vh; display: flex; flex-direction: column;
+  animation: sheetUp 0.32s cubic-bezier(0.32,0.72,0,1);
+}
+.log-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px; border-bottom: 0.5px solid var(--border);
+}
+.log-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.log-scroll { flex: 1; overflow-y: auto; padding: 18px 20px; scrollbar-width: none; }
+.log-scroll::-webkit-scrollbar { display: none; }
+.log-field { margin-bottom: 20px; }
+.log-field-label {
+  font-size: 12px; font-weight: 600; color: var(--text3);
+  letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 8px;
+}
+.log-select {
+  width: 100%; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--border2);
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: 15px;
+  outline: none; -webkit-appearance: none; appearance: none;
+}
+.log-select:focus { border-color: var(--blue); background: #fff; }
+.crowd-btns { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.crowd-btn {
+  padding: 16px 8px; border-radius: var(--r-lg); border: 1px solid var(--border2);
+  background: var(--bg); cursor: pointer; text-align: center; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.crowd-btn .crow-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+.crowd-btn .crow-lbl { font-size: 13px; font-weight: 600; color: var(--text); }
+.crowd-btn.on.few { background: var(--green-light); border-color: var(--green); }
+.crowd-btn.on.few .crow-lbl { color: var(--green); }
+.crowd-btn.on.mid { background: var(--amber-light); border-color: var(--amber); }
+.crowd-btn.on.mid .crow-lbl { color: var(--amber); }
+.crowd-btn.on.many { background: var(--red-light); border-color: var(--red); }
+.crowd-btn.on.many .crow-lbl { color: var(--red); }
+
+/* recent log list */
+.log-history { margin-top: 6px; }
+.log-history-label {
+  font-size: 12px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px;
+}
+.log-entry {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 0.5px solid var(--border);
+  font-size: 13px;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-entry-bus {
+  background: var(--blue-light); color: var(--blue);
+  padding: 3px 10px; border-radius: 100px; font-weight: 700; font-size: 12px; flex-shrink: 0;
+}
+.log-entry-info { flex: 1; color: var(--text2); }
+.log-entry-crowd { font-size: 16px; flex-shrink: 0; }
+.btn-log-save {
+  margin: 0 20px 8px; padding: 16px; border-radius: 100px; border: none;
+  background: var(--blue); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-log-save:active { background: #0062c3; }
 </style>
 </head>
 <body>
@@ -371,13 +618,24 @@ textarea:focus { border-color: var(--blue); }
       </svg>
     </div>
   </div>
-  <button class="intro-btn" id="startBtn" onclick="startApp()">시작하기</button>
+  <button class="intro-btn" id="startBtn" onclick="startApp()">
+    <div class="bell-outer">
+      <div class="bell-hole-top"></div>
+      <div class="bell-stop-window"><span class="bell-stop-text">STOP</span></div>
+      <div class="bell-push-btn">
+        <div class="bell-push-dot"></div>
+        <div class="bell-push-dot"></div>
+      </div>
+      <div class="bell-hole-bot"></div>
+    </div>
+    <span class="bell-label">하차벨 누르기</span>
+  </button>
 </div>
 
 <div id="app">
   <nav class="navbar">
     <div class="nav-top">
-      <div class="nav-title">버스타고 통학</div>
+      <div class="nav-title">버스타고 통학하자</div>
       <div class="nav-mini-bus">🚌</div>
     </div>
     <div class="nav-tabs">
@@ -832,6 +1090,345 @@ function togDetail(btn) {
 renderClasses();
 renderConds();
 renderSegments();
+
+/* ════════════════════════════════════════
+   AI 어시스턴트 + 혼잡도 기록 기능
+   ════════════════════════════════════════ */
+
+/* ─── 혼잡도 기록 저장소 ─── */
+let crowdLogs = JSON.parse(localStorage.getItem('crowdLogs') || '[]');
+function saveLogs() { localStorage.setItem('crowdLogs', JSON.stringify(crowdLogs)); }
+
+/* ─── 모든 버스 목록 수집 ─── */
+function getAllBuses() {
+  const buses = [];
+  S.segments.forEach(seg => {
+    seg.buses.forEach(b => {
+      if (b.number) buses.push({ number: b.number, segBoard: seg.board, segExit: seg.exit });
+    });
+  });
+  return buses;
+}
+
+/* ─── 현재 선택된 정류장 ─── */
+let currentStop = '';
+
+function getAllStops() {
+  const stops = new Set();
+  S.segments.forEach(seg => { if (seg.board) stops.add(seg.board); if (seg.exit) stops.add(seg.exit); });
+  return [...stops];
+}
+
+function populateChatStopSel() {
+  const sel = document.getElementById('chat-stop-sel');
+  const stops = getAllStops();
+  sel.innerHTML = '<option value="">정류장 선택</option>' +
+    stops.map(s => `<option value="${s}"${s === currentStop ? ' selected' : ''}>${s}</option>`).join('');
+  sel.className = 'chat-stop-sel' + (currentStop ? '' : ' unset');
+}
+
+function onStopChange(sel) {
+  currentStop = sel.value;
+  sel.className = 'chat-stop-sel' + (currentStop ? '' : ' unset');
+}
+
+/* ─── 현재 시각 기준 다음 버스 (정류장 필터 포함) ─── */
+function getNextBuses() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const results = [];
+  S.segments.forEach((seg, si) => {
+    // 현재 정류장이 선택됐으면 해당 구간의 승차 정류장과 일치하는 것만
+    if (currentStop && seg.board !== currentStop) return;
+    seg.buses.forEach(b => {
+      if (!b.number) return;
+      const times = b.times.split('\n').map(t => t.trim()).filter(Boolean);
+      const next = times.map(t => pt(t)).filter(m => m >= nowMin).sort((a,z) => a-z)[0];
+      if (next !== undefined) {
+        results.push({ number: b.number, dep: next, duration: Number(b.duration), seg, segIdx: si });
+      }
+    });
+  });
+  return results.sort((a,b) => a.dep - b.dep);
+}
+
+/* ─── 혼잡도 분석 ─── */
+function analyzeCrowd(busNumber) {
+  const recent = crowdLogs.filter(l => l.bus === busNumber).slice(-10);
+  if (!recent.length) return null;
+  const counts = { few: 0, mid: 0, many: 0 };
+  recent.forEach(l => counts[l.crowd]++);
+  const dominant = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  return { counts, total: recent.length, dominant: dominant[0], recent };
+}
+
+function analyzeCrowdByHour(busNumber) {
+  const now = new Date();
+  const hour = now.getHours();
+  const relevant = crowdLogs.filter(l => {
+    if (l.bus !== busNumber) return false;
+    const h = new Date(l.datetime).getHours();
+    return Math.abs(h - hour) <= 1;
+  });
+  if (!relevant.length) return null;
+  const counts = { few: 0, mid: 0, many: 0 };
+  relevant.forEach(l => counts[l.crowd]++);
+  const dominant = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  return { counts, total: relevant.length, dominant: dominant[0] };
+}
+
+/* ─── AI 답변 생성 ─── */
+async function getAIAnswer(questionId) {
+  // 혼잡도 질문은 정류장 불필요
+  if (questionId !== 'least-crowd' && !currentStop) {
+    const sel = document.getElementById('chat-stop-sel');
+    sel.classList.add('unset');
+    sel.focus();
+    addChatMsg('ai', '📍 먼저 현재 정류장을 선택해 주세요!');
+    return;
+  }
+
+  const chatScroll = document.getElementById('chat-scroll');
+  const presets = document.getElementById('chat-presets');
+  const QUESTION_LABELS = {
+    'next-bus': '⏱ 지금 기준 가장 빨리 오는 버스는?',
+    'least-time': '🚀 탑승 시간이 가장 짧은 버스는?',
+    'least-crowd': '🧍 사람이 가장 적은 버스는?'
+  };
+  addChatMsg('user', QUESTION_LABELS[questionId]);
+  presets.style.display = 'none';
+
+  const loadId = 'load-' + Date.now();
+  chatScroll.insertAdjacentHTML('beforeend', `
+    <div class="chat-msg ai" id="${loadId}" style="padding:0">
+      <div class="chat-typing"><span></span><span></span><span></span></div>
+    </div>`);
+  chatScroll.scrollTop = chatScroll.scrollHeight;
+
+  const nextBuses = getNextBuses();
+  const allBuses = getAllBuses();
+  const nowStr = (() => { const n = new Date(); return String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0'); })();
+  const stopCtx = currentStop ? `사용자의 현재 정류장: ${currentStop}` : '';
+  let prompt = '';
+
+  if (questionId === 'next-bus') {
+    const top = nextBuses.slice(0, 4).map(b =>
+      '- ' + b.number + '번 버스 (' + b.seg.board + '→' + b.seg.exit + '): ' + ft(b.dep) + ' 출발, ' + b.duration + '분 소요'
+    ).join('\n');
+    prompt = '현재 시각: ' + nowStr + '\n' + stopCtx + '\n탑승 가능한 버스 시간표:\n' + (top || '해당 정류장에서 탈 수 있는 버스가 없음') + '\n\n지금 가장 빨리 탈 수 있는 버스를 알려주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
+  } else if (questionId === 'least-time') {
+    const sorted = [...nextBuses].sort((a,b) => a.duration - b.duration).slice(0, 4);
+    const info = sorted.map(b => '- ' + b.number + '번: 소요 ' + b.duration + '분 (' + ft(b.dep) + ' 출발, ' + b.seg.board + '→' + b.seg.exit + ')').join('\n');
+    prompt = '현재 시각: ' + nowStr + '\n' + stopCtx + '\n탑승 가능한 버스 소요시간 데이터:\n' + (info || '해당 정류장에서 탈 수 있는 버스가 없음') + '\n\n탑승 시간이 가장 짧은 버스를 추천해주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
+  } else if (questionId === 'least-crowd') {
+    const crowdSummary = allBuses.map(b => {
+      const a = analyzeCrowdByHour(b.number) || analyzeCrowd(b.number);
+      if (!a) return '- ' + b.number + '번: 기록 없음';
+      const emoji = { few: '🟢 여유', mid: '🟡 보통', many: '🔴 혼잡' };
+      return '- ' + b.number + '번: 최근 ' + a.total + '회 기록 → 주로 ' + emoji[a.dominant];
+    }).join('\n');
+    prompt = '사용자가 기록한 혼잡도 데이터:\n' + (crowdSummary || '기록 없음') + '\n\n사람이 가장 적은 버스를 알려주세요. 기록 없으면 솔직히 말해주세요. 친근한 말투로 2~3문장, 이모지 1~2개 사용.';
+  }
+
+  let answer = '';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: '당신은 버스 통학 앱의 친근한 AI 어시스턴트입니다. 사용자의 등교 버스 데이터를 분석해 도움이 되는 정보를 제공합니다. 항상 한국어로, 친근하고 간결하게 답변하세요.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    answer = (data.content || []).map(c => c.text || '').join('') || '답변을 받지 못했어요.';
+  } catch(e) {
+    answer = '네트워크 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+  }
+
+  document.getElementById(loadId)?.remove();
+  addChatMsg('ai', answer);
+
+  if (questionId === 'least-crowd') {
+    chatScroll.insertAdjacentHTML('beforeend', `
+      <div style="padding:4px 0 8px">
+        <button onclick="openLogSheet()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--blue);background:var(--blue-light);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ 혼잡도 직접 기록하기</button>
+      </div>`);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+
+  setTimeout(() => {
+    chatScroll.insertAdjacentHTML('beforeend', `
+      <div style="padding:4px 0 8px">
+        <button onclick="resetChatPresets()" style="padding:10px 18px;border-radius:100px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">다른 질문하기</button>
+      </div>`);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }, 300);
+}
+
+function addChatMsg(role, text) {
+  const chatScroll = document.getElementById('chat-scroll');
+  chatScroll.insertAdjacentHTML('beforeend',
+    '<div class="chat-msg ' + role + '">' + text.replace(/\n/g,'<br>') + '</div>');
+  chatScroll.scrollTop = chatScroll.scrollHeight;
+}
+
+function resetChatPresets() {
+  document.getElementById('chat-presets').style.display = '';
+  document.getElementById('chat-scroll').scrollTop = 99999;
+}
+
+function openAIChat() {
+  populateChatStopSel();
+  document.getElementById('ai-sheet').classList.add('open');
+}
+function closeAIChat() { document.getElementById('ai-sheet').classList.remove('open'); }
+
+/* ─── 혼잡도 기록 시트 ─── */
+let logState = { datetime: '', bus: '', crowd: '' };
+
+function openLogSheet() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const def = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'T'+pad(now.getHours())+':'+pad(now.getMinutes());
+  document.getElementById('log-datetime').value = def;
+  logState = { datetime: def, bus: '', crowd: '' };
+  const sel = document.getElementById('log-bus-sel');
+  const buses = getAllBuses();
+  sel.innerHTML = buses.length
+    ? '<option value="">버스를 선택하세요</option>' + buses.map(b => '<option value="'+b.number+'">'+b.number+'번 ('+b.segBoard+'→'+b.segExit+')</option>').join('')
+    : '<option value="">등록된 버스가 없습니다</option>';
+  document.querySelectorAll('.crowd-btn').forEach(b => b.classList.remove('on'));
+  logState.crowd = '';
+  renderLogHistory();
+  document.getElementById('log-sheet').classList.add('open');
+}
+
+function closeLogSheet() { document.getElementById('log-sheet').classList.remove('open'); }
+
+function selCrowd(level) {
+  logState.crowd = level;
+  document.querySelectorAll('.crowd-btn').forEach(b => b.classList.toggle('on', b.dataset.level === level));
+}
+
+function saveLog() {
+  const dt = document.getElementById('log-datetime').value;
+  const bus = document.getElementById('log-bus-sel').value;
+  if (!dt || !bus || !logState.crowd) { alert('날짜/시간, 버스, 혼잡도를 모두 선택해 주세요.'); return; }
+  crowdLogs.push({ datetime: dt, bus, crowd: logState.crowd, savedAt: Date.now() });
+  saveLogs();
+  renderLogHistory();
+  logState.crowd = '';
+  document.querySelectorAll('.crowd-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('log-bus-sel').value = '';
+  const btn = document.querySelector('.btn-log-save');
+  btn.textContent = '✓ 저장됐어요!';
+  btn.style.background = 'var(--green)';
+  setTimeout(() => { btn.textContent = '기록 저장하기'; btn.style.background = ''; }, 1500);
+}
+
+function renderLogHistory() {
+  const area = document.getElementById('log-history-list');
+  const recent = [...crowdLogs].reverse().slice(0, 10);
+  if (!recent.length) {
+    area.innerHTML = '<div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">아직 기록이 없어요</div>';
+    return;
+  }
+  const crowdEmoji = { few: '🟢', mid: '🟡', many: '🔴' };
+  const crowdLabel = { few: '여유', mid: '보통', many: '혼잡' };
+  area.innerHTML = recent.map(l => {
+    const d = new Date(l.datetime);
+    const label = (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    return '<div class="log-entry"><span class="log-entry-bus">'+l.bus+'번</span><span class="log-entry-info">'+label+'</span><span class="log-entry-crowd">'+crowdEmoji[l.crowd]+' '+crowdLabel[l.crowd]+'</span></div>';
+  }).join('');
+}
+
+/* ─── 앱 시작 시 FAB 표시 ─── */
+const _origStartApp = startApp;
+startApp = function() {
+  _origStartApp();
+  setTimeout(() => document.getElementById('ai-fab').classList.add('visible'), 700);
+};
 </script>
+
+<!-- FAB 버튼 -->
+<button id="ai-fab" onclick="openAIChat()" aria-label="AI 어시스턴트">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 2.98.97 4.29L2 22l5.71-.97C9.02 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" fill="rgba(255,255,255,0.25)"/>
+    <circle cx="8" cy="12" r="1.5" fill="white"/>
+    <circle cx="12" cy="12" r="1.5" fill="white"/>
+    <circle cx="16" cy="12" r="1.5" fill="white"/>
+  </svg>
+</button>
+
+<!-- AI 채팅 시트 -->
+<div id="ai-sheet">
+  <div class="sheet-backdrop" onclick="closeAIChat()"></div>
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title-wrap">
+        <div class="sheet-title-icon">🤖</div>
+        <span class="sheet-title">AI 버스 어시스턴트</span>
+      </div>
+      <button class="sheet-close" onclick="closeAIChat()">✕</button>
+    </div>
+    <div class="chat-scroll" id="chat-scroll">
+      <div class="chat-msg ai">안녕하세요! 버스 관련해서 궁금한 게 있으면 아래에서 선택해 주세요 🚌</div>
+    </div>
+    <div class="chat-stop-row">
+      <span class="chat-stop-label">📍 현재 정류장</span>
+      <select id="chat-stop-sel" class="chat-stop-sel unset" onchange="onStopChange(this)">
+        <option value="">정류장 선택</option>
+      </select>
+    </div>
+    <div class="chat-presets" id="chat-presets">
+      <div class="preset-label">질문 선택</div>
+      <button class="preset-chip" onclick="getAIAnswer('next-bus')"><span class="chip-icon">⏱</span>지금 기준 가장 빨리 오는 버스가 뭐야?</button>
+      <button class="preset-chip" onclick="getAIAnswer('least-time')"><span class="chip-icon">🚀</span>탑승 시간이 가장 짧은 버스가 뭐야?</button>
+      <button class="preset-chip" onclick="getAIAnswer('least-crowd')"><span class="chip-icon">🧍</span>사람이 가장 적은 버스가 뭐야?</button>
+      <button class="preset-chip" onclick="openLogSheet(); closeAIChat();" style="border-color:var(--green);color:var(--green)"><span class="chip-icon">✏️</span>오늘 탄 버스 혼잡도 기록하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 혼잡도 기록 시트 -->
+<div id="log-sheet">
+  <div class="sheet-backdrop" onclick="closeLogSheet()"></div>
+  <div class="log-panel">
+    <div class="sheet-handle"></div>
+    <div class="log-header">
+      <span class="log-title">🚌 버스 혼잡도 기록</span>
+      <button class="sheet-close" onclick="closeLogSheet()">✕</button>
+    </div>
+    <div class="log-scroll">
+      <div class="log-field">
+        <div class="log-field-label">날짜 / 시간</div>
+        <input type="datetime-local" id="log-datetime" class="log-select" oninput="logState.datetime=this.value">
+      </div>
+      <div class="log-field">
+        <div class="log-field-label">탑승한 버스</div>
+        <select id="log-bus-sel" class="log-select" onchange="logState.bus=this.value">
+          <option value="">버스를 선택하세요</option>
+        </select>
+      </div>
+      <div class="log-field">
+        <div class="log-field-label">혼잡도</div>
+        <div class="crowd-btns">
+          <button class="crowd-btn few" data-level="few" onclick="selCrowd('few')"><span class="crow-icon">🟢</span><span class="crow-lbl">여유</span></button>
+          <button class="crowd-btn mid" data-level="mid" onclick="selCrowd('mid')"><span class="crow-icon">🟡</span><span class="crow-lbl">보통</span></button>
+          <button class="crowd-btn many" data-level="many" onclick="selCrowd('many')"><span class="crow-icon">🔴</span><span class="crow-lbl">혼잡</span></button>
+        </div>
+      </div>
+      <div class="log-history">
+        <div class="log-history-label">최근 기록</div>
+        <div id="log-history-list"></div>
+      </div>
+    </div>
+    <button class="btn-log-save" onclick="saveLog()">기록 저장하기</button>
+  </div>
+</div>
 </body>
 </html>
