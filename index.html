@@ -374,8 +374,8 @@ textarea:focus { border-color: var(--blue); }
 .r-sum-dot.amber { background: var(--amber); }
 
 .r-detail { background: #fff; border: 1px solid var(--border2); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 10px; }
-.r-detail-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px 20px; border: none; background: none; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text); cursor: pointer; }
-.r-detail-chevron { width: 22px; height: 22px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text3); transition: transform 0.25s; }
+.r-detail-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 15px 20px; border: none; background: var(--blue); font-family: inherit; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; border-radius: var(--r-xl); }
+.r-detail-chevron { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; transition: transform 0.25s; }
 .r-detail-btn.open .r-detail-chevron { transform: rotate(180deg); }
 .r-detail-body { display: none; padding: 0 20px 18px; }
 .r-detail-body.open { display: block; }
@@ -423,13 +423,17 @@ textarea:focus { border-color: var(--blue); }
   max-width: 430px; margin: 0 auto;
   background: #fff; border-radius: 24px 24px 0 0;
   padding: 0 0 env(safe-area-inset-bottom, 16px);
-  max-height: 92vh; display: flex; flex-direction: column;
+  height: 52vh; min-height: 320px; max-height: 92vh;
+  display: flex; flex-direction: column;
   animation: sheetUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: none;
 }
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .sheet-handle {
   width: 36px; height: 4px; border-radius: 2px;
   background: var(--border2); margin: 12px auto 0;
+  cursor: ns-resize; padding: 8px 0; box-sizing: content-box;
+  background-clip: content-box;
 }
 .sheet-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -480,7 +484,7 @@ textarea:focus { border-color: var(--blue); }
 
 /* 정류장 선택 영역 */
 .chat-stop-row {
-  padding: 10px 16px 0;
+  padding: 10px 16px 12px;
   display: flex; align-items: center; gap: 8px;
   border-top: 0.5px solid var(--border);
 }
@@ -1322,9 +1326,54 @@ function resetChatPresets() {
 
 function openAIChat() {
   populateChatStopSel();
-  document.getElementById('ai-sheet').classList.add('open');
+  const sheet = document.getElementById('ai-sheet');
+  sheet.classList.add('open');
+
+  // 드래그로 높이 조절
+  const panel = sheet.querySelector('.sheet-panel');
+  const handle = sheet.querySelector('.sheet-handle');
+  let startY = 0, startH = 0, dragging = false;
+
+  function onStart(e) {
+    dragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    startH = panel.offsetHeight;
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = startY - y;
+    const newH = Math.min(Math.max(startH + delta, 320), window.innerHeight * 0.92);
+    panel.style.height = newH + 'px';
+    panel.style.animation = 'none';
+  }
+  function onEnd() { dragging = false; }
+
+  handle.addEventListener('touchstart', onStart, { passive: false });
+  handle.addEventListener('mousedown', onStart);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchend', onEnd);
+  window.addEventListener('mouseup', onEnd);
+
+  // 닫을 때 이벤트 정리
+  panel._cleanupDrag = () => {
+    handle.removeEventListener('touchstart', onStart);
+    handle.removeEventListener('mousedown', onStart);
+    window.removeEventListener('touchmove', onMove);
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('touchend', onEnd);
+    window.removeEventListener('mouseup', onEnd);
+    panel.style.height = '';
+  };
 }
-function closeAIChat() { document.getElementById('ai-sheet').classList.remove('open'); }
+function closeAIChat() {
+  const sheet = document.getElementById('ai-sheet');
+  const panel = sheet.querySelector('.sheet-panel');
+  if (panel._cleanupDrag) panel._cleanupDrag();
+  sheet.classList.remove('open');
+}
 
 /* ─── 혼잡도 기록 시트 ─── */
 let logState = { datetime: '', bus: '', crowd: '' };
